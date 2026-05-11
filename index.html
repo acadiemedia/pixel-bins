@@ -181,7 +181,7 @@
         <!-- HOME VIEW -->
         <div id="home-view" class="view active">
             <section class="hero">
-                <h1>LEVEL UP YOUR STREET!</h1>
+                <h1>LEVEL UP YOUR BINS!</h1>
                 <div class="pixel-banner">
                     <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
                         <rect width="100" height="50" fill="#5C94FC" />
@@ -195,7 +195,7 @@
                         <rect x="47" y="22" width="6" height="6" fill="#FFD700" />
                     </svg>
                 </div>
-                <p>SUPPORT LOCAL HEROES IN ST. JOHN'S & MOUNT PEARL! CLEAN BINS, EARN COINS, LEVEL UP!</p>
+                <p>SUPPORT LOCAL HEROES IN ST. JOHN'S & MOUNT PEARL! DEFEAT BIN DIRT, EARN COINS, LEVEL UP!</p>
             </section>
 
             <div id="map"></div>
@@ -206,10 +206,10 @@
             <div class="board">
                 <h2 class="pixel-font" style="font-size: 0.8rem; margin-bottom: 1rem; color: white; text-align: center;">COMMUNITY BOARD</h2>
                 <div class="feedback">
-                    <p>"The St. John's Scouts are absolute legends! 10/10 service."</p>
+                    <p>"The St. John's Scouts made our bins look brand new! 10/10 service."</p>
                 </div>
                 <div class="feedback">
-                    <p>"Retro Riley cleaned the whole street. Amazing work!"</p>
+                    <p>"Retro Riley sanitized every bin on our driveway. No more smells! Amazing work!"</p>
                 </div>
             </div>
         </div>
@@ -329,7 +329,7 @@
         function openBooking(kidId) {
             const kid = kidsData.find(k => k.id === kidId);
             if(kid) {
-                document.getElementById('booking-info').innerText = `SEND MISSION TO ${kid.name}?`;
+                document.getElementById('booking-info').innerText = `REQUEST BIN SANITIZATION MISSION FROM ${kid.name}?`;
                 document.getElementById('booking-modal').classList.add('active');
             }
         }
