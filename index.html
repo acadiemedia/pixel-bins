@@ -164,21 +164,45 @@
         // --- Supabase Config (Replace with real keys when available) ---
         const SUPABASE_URL = 'YOUR_SUPABASE_URL';
         const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // --- Fallback Data (Shows when DB is not connected) ---
+        const fallbackHeroes = [
+            { id: 1, nickname: "Bin-Buster Pete", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14 },
+            { id: 2, nickname: "Retro Riley", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9 },
+            { id: 3, nickname: "Sanitary Sam", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6 }
+        ];
 
         let map, userSession = null;
 
         async function initApp() {
             initMap();
-            checkSession();
-            fetchHeroes();
+            try {
+                // Initialize Supabase only if keys are provided
+                if (SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                    const { createClient } = supabase;
+                    window.supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    checkSession();
+                    fetchHeroes();
+                } else {
+                    console.log("Running in Preview Mode (No DB)");
+                    renderProfiles(fallbackHeroes);
+                }
+            } catch (e) {
+                renderProfiles(fallbackHeroes);
+            }
+        }
+
+        async function fetchHeroes() {
+            if (!window.supabaseClient) return renderProfiles(fallbackHeroes);
+            const { data, error } = await window.supabaseClient.from('profiles').select('*');
+            if(error || !data || data.length === 0) renderProfiles(fallbackHeroes);
+            else renderProfiles(data);
         }
 
         async function checkSession() {
-            const { data } = await supabase.auth.getSession();
+            if(!window.supabaseClient) return;
+            const { data } = await window.supabaseClient.auth.getSession();
             userSession = data.session;
             updateUIForAuth();
-            if(userSession) fetchUserProfile();
         }
 
         function updateUIForAuth() {
@@ -194,13 +218,14 @@
         }
 
         async function handleLogout() {
-            await supabase.auth.signOut();
+            if(window.supabaseClient) await window.supabaseClient.auth.signOut();
             location.reload();
         }
 
         function switchView(viewId) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId + '-view').classList.add('active');
+            const target = document.getElementById(viewId + '-view');
+            if(target) target.classList.add('active');
             window.scrollTo(0,0);
             if(viewId === 'home' && map) setTimeout(() => map.invalidateSize(), 200);
         }
@@ -208,61 +233,64 @@
         function initMap() {
             map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+            
+            // Add initial markers from fallback
+            fallbackHeroes.forEach(kid => {
+                L.marker([47.54 + (Math.random()*0.04-0.02), -52.75 + (Math.random()*0.04-0.02)]).addTo(map)
+                    .bindPopup(`<b>${kid.nickname}</b><br>${kid.neighborhood}`);
+            });
         }
+
+        function renderProfiles(heroes) {
+            const container = document.getElementById('profiles-container');
+            container.innerHTML = '';
+            heroes.forEach(hero => {
+                const card = document.createElement('div');
+                card.className = 'pixel-card';
+                card.innerHTML = `
+                    <div style="font-family:'Press Start 2P'; font-size:0.5rem; color:var(--power-purple); margin-bottom:10px;">LVL ${hero.reviews || 1}</div>
+                    <div class="avatar-box">${hero.avatar || '👾'}</div>
+                    <div class="pixel-font" style="font-size:0.7rem;">${hero.nickname}</div>
+                    <div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${hero.neighborhood}</div>
+                    <button class="btn btn-green" style="width:100%; font-size:0.6rem;" onclick="openBooking()">HIRE HERO</button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openBooking() {
+            document.getElementById('booking-info').innerText = "REQUEST BIN SANITIZATION MISSION?";
+            document.getElementById('booking-modal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
 
         // --- Auth Logic ---
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if(!window.supabaseClient) return alert("System in Preview Mode. Database not connected.");
             const email = document.getElementById('signup-email').value;
             const password = document.getElementById('signup-password').value;
-            const name = document.getElementById('signup-name').value;
+            const nickname = document.getElementById('signup-name').value;
             const neighborhood = document.getElementById('signup-neighborhood').value;
 
-            const { data, error } = await supabase.auth.signUp({ email, password });
+            const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
             if(error) alert(error.message);
             else {
-                // Create Profile
-                await supabase.from('profiles').insert([
-                    { id: data.user.id, nickname: name, neighborhood: neighborhood, avatar: "🦸‍♂️" }
-                ]);
-                alert('WELCOME TO THE SQUAD! Please confirm your email.');
+                await window.supabaseClient.from('profiles').insert([{ id: data.user.id, nickname, neighborhood, avatar: "🦸‍♂️" }]);
+                alert('WELCOME HERO! Please confirm your email.');
                 switchView('login');
             }
         });
 
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            if(!window.supabaseClient) return alert("System in Preview Mode. Database not connected.");
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await window.supabaseClient.signInWithPassword({ email, password });
             if(error) alert(error.message);
             else location.reload();
         });
-
-        async function fetchHeroes() {
-            const { data, error } = await supabase.from('profiles').select('*');
-            if(!error) renderProfiles(data);
-        }
-
-        function renderProfiles(heroes) {
-            const container = document.getElementById('profiles-container');
-            container.innerHTML = '';
-            if(!heroes || heroes.length === 0) {
-                container.innerHTML = '<p style="color:white;text-align:center;">Finding nearby heroes...</p>';
-                return;
-            }
-            heroes.forEach(hero => {
-                const card = document.createElement('div');
-                card.className = 'pixel-card';
-                card.innerHTML = `
-                    <div class="avatar-box">${hero.avatar || '👾'}</div>
-                    <div class="pixel-font" style="font-size:0.7rem;">${hero.nickname}</div>
-                    <div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${hero.neighborhood}</div>
-                    <button class="btn btn-green" style="width:100%; font-size:0.6rem;">HIRE HERO</button>
-                `;
-                container.appendChild(card);
-            });
-        }
 
         window.onload = initApp;
     </script>
