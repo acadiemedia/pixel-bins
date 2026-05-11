@@ -15,15 +15,16 @@
             --accent: #F9CA24;
             --dark: #2D3436;
             --light: #F5F6FA;
+            --green-bin: #2ECC71;
             --pixel-border: 4px solid var(--dark);
             --shadow: 4px 4px 0px rgba(0,0,0,0.2);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'VT323', monospace; background-color: var(--light); color: var(--dark); font-size: 1.2rem; line-height: 1.5; }
+        body { font-family: 'VT323', monospace; background-color: var(--light); color: var(--dark); font-size: 1.2rem; line-height: 1.4; }
         h1, h2, h3, .pixel-text { font-family: 'Press Start 2P', cursive; text-transform: uppercase; }
 
-        /* Navigation Fix for Mobile */
+        /* Navigation */
         nav { 
             background-color: var(--primary); 
             color: white; 
@@ -35,8 +36,7 @@
             flex-wrap: wrap;
             gap: 10px;
         }
-        .logo { font-size: 1.2rem; text-shadow: 2px 2px 0 var(--dark); cursor: pointer; flex: 1 1 100%; text-align: center; margin-bottom: 5px; }
-        
+        .logo { font-size: 1.2rem; text-shadow: 2px 2px 0 var(--dark); cursor: pointer; flex: 1 1 100%; text-align: center; }
         .nav-buttons { display: flex; justify-content: center; width: 100%; gap: 10px; }
         .nav-buttons button { 
             background-color: var(--accent); 
@@ -46,27 +46,45 @@
             font-size: 0.6rem; 
             cursor: pointer; 
             box-shadow: var(--shadow);
-            margin: 0;
-            white-space: nowrap;
         }
 
         @media (min-width: 768px) {
             nav { padding: 15px 20px; flex-wrap: nowrap; }
-            .logo { font-size: 1.5rem; flex: none; text-align: left; margin-bottom: 0; }
-            .nav-buttons { width: auto; justify-content: flex-end; }
-            .nav-buttons button { font-size: 0.8rem; padding: 10px 15px; margin-left: 10px; }
+            .logo { font-size: 1.5rem; flex: none; text-align: left; }
+            .nav-buttons { width: auto; }
+            .nav-buttons button { font-size: 0.8rem; padding: 10px 15px; }
         }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 10px; }
+        @media (min-width: 768px) { .container { padding: 20px; } }
+
         .view { display: none; animation: fadeIn 0.3s ease-in-out; }
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero { text-align: center; margin-bottom: 30px; padding: 20px; background: white; border: var(--pixel-border); box-shadow: var(--shadow); }
-        .hero h1 { color: var(--secondary); font-size: 1.4rem; margin-bottom: 15px; }
-        @media (min-width: 768px) { .hero h1 { font-size: 1.8rem; } }
-        
-        /* Directory Notice */
+        /* Superhero Banner */
+        .banner-graphic {
+            background-color: var(--primary);
+            border: var(--pixel-border);
+            margin-bottom: 20px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-title-section {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border: var(--pixel-border);
+            box-shadow: var(--shadow);
+        }
+
+        /* Map & Notice */
         .safety-banner {
             background-color: #FFF3CD;
             color: #856404;
@@ -77,11 +95,10 @@
             text-align: center;
             border-radius: 8px;
         }
-
         #map { height: 300px; width: 100%; border: var(--pixel-border); box-shadow: var(--shadow); margin-bottom: 30px; z-index: 1; }
-        @media (min-width: 768px) { #map { height: 400px; } }
 
-        .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        /* Profile Cards & Teams */
+        .profiles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
         .profile-card { 
             background: white; 
             border: var(--pixel-border); 
@@ -89,40 +106,49 @@
             box-shadow: var(--shadow); 
             text-align: center; 
             position: relative;
-            overflow: hidden; /* Prevent text bleeding */
         }
-        .avatar { font-size: 3rem; margin-bottom: 10px; display: inline-block; background: var(--light); border: 2px solid var(--dark); border-radius: 50%; padding: 10px; }
-        .group-tag { font-size: 0.8rem; color: var(--secondary); font-weight: bold; display: block; margin-bottom: 5px; word-wrap: break-word; }
-        .badge { background: var(--secondary); color: white; padding: 5px 10px; font-family: 'Press Start 2P', cursive; font-size: 0.5rem; position: absolute; top: -5px; right: -5px; border: 2px solid var(--dark); }
-        .book-btn { background-color: var(--accent); border: 2px solid var(--dark); padding: 10px 20px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; cursor: pointer; width: 100%; box-shadow: 2px 2px 0 var(--dark); }
-
-        /* Neighborhood Text Fix */
-        .profile-card p {
-            font-size: 1.1rem;
-            margin-bottom: 10px;
-            color: #555;
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            padding: 0 5px;
-        }
-
-        .form-container { background: white; border: var(--pixel-border); padding: 20px; max-width: 600px; margin: 0 auto; box-shadow: var(--shadow); }
-        @media (min-width: 768px) { .form-container { padding: 30px; } }
+        .avatar { font-size: 3.5rem; margin-bottom: 10px; display: inline-block; background: var(--light); border: 2px solid var(--dark); border-radius: 50%; padding: 10px; }
         
-        .form-group { margin-bottom: 20px; }
-        label { display: block; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; margin-bottom: 8px; line-height: 1.4; }
-        input[type="text"], input[type="email"], select { width: 100%; padding: 10px; font-family: 'VT323', monospace; font-size: 1.3rem; border: 2px solid var(--dark); background: var(--light); }
-        .submit-btn { background-color: var(--secondary); color: white; border: var(--pixel-border); padding: 15px; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; cursor: pointer; width: 100%; box-shadow: var(--shadow); }
+        /* Team Progress Bar */
+        .team-box {
+            background: #f0f0f0;
+            border: 2px solid var(--dark);
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+        .progress-container {
+            background: white;
+            border: 2px solid var(--dark);
+            height: 15px;
+            margin-top: 5px;
+            position: relative;
+        }
+        .progress-bar {
+            background: var(--accent);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-in-out;
+        }
 
+        /* Rating Stars */
+        .rating { color: var(--accent); font-size: 1.2rem; margin-bottom: 5px; text-shadow: 1px 1px 0 #000; }
+        .review-count { font-size: 0.9rem; color: #666; margin-bottom: 10px; display: block; }
+
+        .book-btn { background-color: var(--accent); border: 2px solid var(--dark); padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; cursor: pointer; width: 100%; box-shadow: 2px 2px 0 var(--dark); }
+
+        /* Feedback Section */
+        .feedback-section { margin-top: 50px; padding: 20px; background: white; border: var(--pixel-border); box-shadow: var(--shadow); }
+        .feedback-item { border-bottom: 2px solid #eee; padding: 15px 0; }
+        .feedback-item:last-child { border-bottom: none; }
+        .feedback-name { font-weight: bold; color: var(--primary); margin-bottom: 5px; display: block; }
+
+        /* Modals & Forms */
+        .form-container { background: white; border: var(--pixel-border); padding: 20px; max-width: 600px; margin: 0 auto; box-shadow: var(--shadow); }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; border: var(--pixel-border); padding: 20px; max-width: 500px; width: 95%; box-shadow: var(--shadow); position: relative; }
-        @media (min-width: 768px) { .modal-content { padding: 30px; } }
-        
-        .close-modal { position: absolute; top: 5px; right: 5px; background: var(--secondary); color: white; border: 2px solid var(--dark); cursor: pointer; font-family: 'Press Start 2P', cursive; padding: 5px; font-size: 0.6rem; }
 
-        footer { text-align: center; padding: 20px; margin-top: 40px; font-size: 1rem; }
-        footer a { color: var(--primary); }
+        footer { text-align: center; padding: 20px; margin-top: 40px; }
     </style>
 </head>
 <body>
@@ -137,91 +163,120 @@
 
     <div class="container">
         
+        <!-- HOME VIEW -->
         <div id="home-view" class="view active">
-            <div class="hero">
+            
+            <div class="banner-graphic">
+                <!-- SVG Superhero Cleaning a Green Bin -->
+                <svg width="300" height="150" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Sky -->
+                    <rect width="300" height="150" fill="#5C94FC" />
+                    <!-- Green Automated Bin -->
+                    <rect x="180" y="60" width="40" height="70" fill="#2ECC71" />
+                    <rect x="180" y="55" width="40" height="8" fill="#27AE60" /> <!-- Lid -->
+                    <circle cx="185" cy="120" r="5" fill="#333" /> <!-- Wheel -->
+                    <circle cx="215" cy="120" r="5" fill="#333" /> <!-- Wheel -->
+                    <rect x="195" y="75" width="10" height="20" fill="rgba(255,255,255,0.2)" /> <!-- Reflective strip -->
+                    
+                    <!-- Superhero -->
+                    <rect x="80" y="40" width="30" height="30" fill="#F1C40F" /> <!-- Cape -->
+                    <rect x="90" y="50" width="30" height="70" fill="#E74C3C" /> <!-- Body -->
+                    <rect x="95" y="30" width="20" height="20" fill="#FFDBAC" /> <!-- Head -->
+                    <rect x="95" y="35" width="20" height="5" fill="#333" /> <!-- Mask -->
+                    <rect x="120" y="80" width="40" height="10" fill="#3498DB" /> <!-- Arm/Sponge holder -->
+                    <rect x="155" y="75" width="20" height="15" fill="#F9CA24" /> <!-- Sponge -->
+                    
+                    <!-- Suds -->
+                    <circle cx="170" cy="70" r="5" fill="white" opacity="0.8" />
+                    <circle cx="175" cy="85" r="3" fill="white" opacity="0.6" />
+                    <circle cx="185" cy="65" r="4" fill="white" opacity="0.7" />
+                </svg>
+            </div>
+
+            <div class="hero-title-section">
                 <h1>NEIGHBORHOOD DIRECTORY</h1>
-                <p>Connecting industrious kids in <strong>St. John's</strong> & <strong>Mount Pearl</strong> with neighbors who need their bins cleaned.</p>
+                <p>Support industrious kids in <strong>St. John's</strong> & <strong>Mount Pearl</strong> cleaning bins for their community goals!</p>
             </div>
 
             <div class="safety-banner">
-                <strong>🛡️ DIRECTORY NOTICE:</strong> Pixel Bin Cleaners is a community directory. We do not vet cleaners or customers. For safety, we recommend that parents accompany minors and that all work is performed in public view.
+                <strong>🛡️ DIRECTORY NOTICE:</strong> This is a community board. We recommend parent supervision for all cleanings. 
             </div>
 
             <div id="map"></div>
 
-            <h2 style="margin-bottom: 20px; text-align: center; font-size: 1.2rem;" class="pixel-text">FIND A CLEANER</h2>
+            <h2 style="margin-bottom: 20px; text-align: center;" class="pixel-text">LOCAL HEROES</h2>
             <div id="profiles-container" class="profiles-grid"></div>
+
+            <!-- COMMUNITY FEEDBACK SECTION -->
+            <div class="feedback-section">
+                <h2 class="pixel-text" style="font-size: 1.2rem; margin-bottom: 20px;">COMMUNITY FEEDBACK</h2>
+                <div id="community-feedback-list">
+                    <div class="feedback-item">
+                        <span class="feedback-name">Mrs. Walsh (Mount Pearl)</span>
+                        <p>"So happy with the service! The bins look like new and it's great to see kids working hard for their soccer trip."</p>
+                    </div>
+                    <div class="feedback-item">
+                        <span class="feedback-name">The Browns (St. John's)</span>
+                        <p>"Fast and friendly. Alex did an amazing job on our street. Highly recommend!"</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
+        <!-- REGISTRATION VIEW -->
         <div id="register-view" class="view">
-            <div class="hero">
-                <h1>START YOUR FUNDRAISER</h1>
-                <p>Register to help your neighborhood and raise funds for your group or goals!</p>
+            <div class="hero-title-section">
+                <h1>JOIN THE SQUAD</h1>
+                <p>Start your fundraiser and help your neighborhood!</p>
             </div>
-
             <div class="form-container">
                 <form id="kid-signup-form">
-                    <div class="form-group">
-                        <label>PLAYER NAME (NICKNAME)</label>
-                        <input type="text" id="kid-name" required placeholder="e.g. Pixel Pete">
-                    </div>
-                    <div class="form-group">
-                        <label>GROUP / TEAM NAME (OPTIONAL)</label>
-                        <input type="text" id="kid-group" placeholder="e.g. St. John's Scouts">
-                    </div>
-                    <div class="form-group">
-                        <label>PARENT'S EMAIL</label>
-                        <input type="email" id="kid-email" required placeholder="parent@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>CITY</label>
-                        <select id="kid-city">
-                            <option value="St. John's">St. John's</option>
-                            <option value="Mount Pearl">Mount Pearl</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>NEIGHBORHOOD (FOR PRIVACY)</label>
-                        <input type="text" id="kid-street" required placeholder="e.g. Cowan Heights">
-                    </div>
-                    <div class="form-group">
-                        <label>AVAILABILITY</label>
-                        <input type="text" id="kid-time" required placeholder="e.g. Saturday Afternoons">
-                    </div>
-                    <button type="submit" class="submit-btn">JOIN DIRECTORY</button>
+                    <div class="form-group"><label>PLAYER NAME</label><input type="text" id="kid-name" required></div>
+                    <div class="form-group"><label>TEAM / GROUP (e.g. Scouts, Soccer)</label><input type="text" id="kid-group"></div>
+                    <div class="form-group"><label>TEAM GOAL ($)</label><input type="text" id="kid-goal" placeholder="e.g. 500"></div>
+                    <div class="form-group"><label>CITY</label><select id="kid-city"><option>St. John's</option><option>Mount Pearl</option></select></div>
+                    <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="kid-street" required></div>
+                    <div class="form-group"><label>AVAILABILITY</label><input type="text" id="kid-time" required></div>
+                    <button type="submit" class="book-btn" style="padding:15px; font-size:1rem;">JOIN MISSION</button>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- BOOKING MODAL -->
     <div id="booking-modal" class="modal-overlay">
         <div class="modal-content">
             <button class="close-modal" onclick="closeModal()">X</button>
             <h2 class="pixel-text" style="font-size: 0.8rem; margin-bottom: 15px;">HIRE A CLEANER</h2>
-            <div style="font-size: 0.8rem; background: #eee; padding: 10px; margin-bottom: 15px;">
-                <strong>Privacy Note:</strong> This form sends a request to the child's parent. Your contact info is only shared with them to coordinate the cleaning.
-            </div>
-            <p id="booking-info" style="margin-bottom: 15px; font-size: 1rem;"></p>
+            <p id="booking-info" style="margin-bottom: 15px;"></p>
             <form id="booking-form">
                 <div class="form-group"><label>YOUR NAME</label><input type="text" required></div>
-                <div class="form-group"><label>YOUR PHONE OR EMAIL</label><input type="text" required></div>
-                <div class="form-group"><label>ADDRESS FOR CLEANING</label><input type="text" required></div>
-                <button type="submit" class="submit-btn">SEND REQUEST</button>
+                <div class="form-group"><label>YOUR CONTACT</label><input type="text" required></div>
+                <div class="form-group"><label>ADDRESS</label><input type="text" required></div>
+                <button type="submit" class="book-btn">SEND REQUEST</button>
             </form>
         </div>
     </div>
 
     <footer>
-        <p>Pixel Bin Cleaners - NL</p>
+        <p>Pixel Bin Cleaners - NL Community Platform</p>
         <p><a href="terms-conditions.html">Safety Rules</a></p>
     </footer>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script>
+        // --- Shared Team Goals ---
+        let teamGoals = {
+            "Mount Pearl Soccer": { goal: 500, current: 345 },
+            "St. John's Scouts": { goal: 1000, current: 620 }
+        };
+
+        // --- Mock Data with Ratings & Reviews ---
         let kidsData = [
-            { id: 1, name: "Pixel Pete", group: "St. John's Scouts", city: "St. John's", street: "Cowan Heights", time: "Weekends", lat: 47.535, lng: -52.762, avatar: "🦸‍♂️" },
-            { id: 2, name: "Retro Riley", group: "Mount Pearl Soccer", city: "Mount Pearl", street: "Pearlview", time: "Mon-Wed Afternoons", lat: 47.518, lng: -52.805, avatar: "🥷" },
-            { id: 3, name: "Arcade Alex", group: "Individual Goals", city: "St. John's", street: "Rabbittown", time: "Saturday Mornings", lat: 47.569, lng: -52.718, avatar: "🧑‍🚀" }
+            { id: 1, name: "Pixel Pete", group: "St. John's Scouts", city: "St. John's", street: "Cowan Heights", time: "Weekends", lat: 47.535, lng: -52.762, avatar: "🦸‍♂️", rating: 5, reviews: 12, topReview: "Super polite and did a great job!" },
+            { id: 2, name: "Retro Riley", group: "Mount Pearl Soccer", city: "Mount Pearl", street: "Pearlview", time: "Afternoons", lat: 47.518, lng: -52.805, avatar: "🥷", rating: 4.5, reviews: 8, topReview: "Very thorough, bins are spotless." },
+            { id: 3, name: "Arcade Alex", group: "St. John's Scouts", city: "St. John's", street: "Rabbittown", time: "Saturdays", lat: 47.569, lng: -52.718, avatar: "🧑‍🚀", rating: 5, reviews: 5, topReview: "Best service on the block!" },
+            { id: 4, name: "Turbo Tom", group: "Mount Pearl Soccer", city: "Mount Pearl", street: "Commonwealth Ave", time: "Weekends", lat: 47.525, lng: -52.795, avatar: "🤖", rating: 5, reviews: 3, topReview: "On time and very efficient." }
         ];
 
         let map, markers = [];
@@ -245,7 +300,7 @@
             markers = [];
             kidsData.forEach(kid => {
                 let marker = L.marker([kid.lat, kid.lng]).addTo(map)
-                    .bindPopup(`<b>${kid.name}</b><br>${kid.street}<br><button onclick="openBooking(${kid.id})" style="margin-top:5px;cursor:pointer;">Contact Parent</button>`);
+                    .bindPopup(`<b>${kid.name}</b><br>${kid.street}<br>⭐ ${kid.rating}<br><button onclick="openBooking(${kid.id})" style="margin-top:5px;cursor:pointer;">Hire Hero</button>`);
                 markers.push(marker);
             });
         }
@@ -254,15 +309,28 @@
             const container = document.getElementById('profiles-container');
             container.innerHTML = '';
             kidsData.forEach(kid => {
+                const team = teamGoals[kid.group];
+                let teamHtml = '';
+                if (team) {
+                    const percent = (team.current / team.goal) * 100;
+                    teamHtml = `
+                        <div class="team-box">
+                            <span style="font-size:0.7rem;">${kid.group} Goal: $${team.current}/$${team.goal}</span>
+                            <div class="progress-container"><div class="progress-bar" style="width: ${percent}%"></div></div>
+                        </div>
+                    `;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'profile-card';
                 card.innerHTML = `
-                    <div class="badge">${kid.city}</div>
                     <div class="avatar">${kid.avatar}</div>
-                    <span class="group-tag">${kid.group || ''}</span>
                     <h3>${kid.name}</h3>
+                    <div class="rating">${"⭐".repeat(Math.floor(kid.rating))}${kid.rating % 1 !== 0 ? "½" : ""}</div>
+                    <span class="review-count">(${kid.reviews} reviews)</span>
+                    <p style="font-style: italic; font-size: 0.8rem; margin-bottom: 10px;">"${kid.topReview}"</p>
                     <p>📍 ${kid.street}</p>
-                    <p>🕒 ${kid.time}</p>
+                    ${teamHtml}
                     <button class="book-btn" onclick="openBooking(${kid.id})">CONTACT PARENT</button>
                 `;
                 container.appendChild(card);
@@ -272,36 +340,37 @@
         function openBooking(kidId) {
             const kid = kidsData.find(k => k.id === kidId);
             if(kid) {
-                document.getElementById('booking-info').innerText = `You are requesting a bin cleaning from ${kid.name} in the ${kid.street} area.`;
+                document.getElementById('booking-info').innerText = `Hiring ${kid.name} in ${kid.street}. Contacting parent...`;
                 document.getElementById('booking-modal').classList.add('active');
             }
         }
         function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
 
-        document.getElementById('booking-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('SUCCESS! Your request has been forwarded to the cleaner\'s parents. They will contact you shortly to coordinate.');
-            closeModal();
-            this.reset();
-        });
-
         document.getElementById('kid-signup-form').addEventListener('submit', function(e) {
             e.preventDefault();
+            const group = document.getElementById('kid-group').value;
+            const goal = document.getElementById('kid-goal').value;
+            
+            if (group && goal && !teamGoals[group]) {
+                teamGoals[group] = { goal: parseInt(goal), current: 0 };
+            }
+
             const newKid = {
                 id: kidsData.length + 1,
                 name: document.getElementById('kid-name').value,
-                group: document.getElementById('kid-group').value,
+                group: group,
                 city: document.getElementById('kid-city').value,
                 street: document.getElementById('kid-street').value,
                 time: document.getElementById('kid-time').value,
-                lat: document.getElementById('kid-city').value === "St. John's" ? 47.56 + (Math.random() * 0.04 - 0.02) : 47.51 + (Math.random() * 0.04 - 0.02),
-                lng: document.getElementById('kid-city').value === "St. John's" ? -52.71 + (Math.random() * 0.04 - 0.02) : -52.80 + (Math.random() * 0.04 - 0.02),
-                avatar: "👾"
+                lat: 47.54 + (Math.random() * 0.04 - 0.02),
+                lng: -52.75 + (Math.random() * 0.04 - 0.02),
+                avatar: "👾",
+                rating: 5, reviews: 0, topReview: "New Cleaner!"
             };
             kidsData.push(newKid);
             renderProfiles();
             updateMapMarkers();
-            alert('WELCOME TO THE SQUAD! Your profile is now listed in the directory.');
+            alert('WELCOME TO THE SQUAD!');
             this.reset();
             switchView('home');
         });
