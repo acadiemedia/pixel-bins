@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Bin Heroes | Instant Edition</title>
+    <title>Pixel Bin Heroes | Global Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -74,29 +74,32 @@
         input { width: 100%; padding: 8px; border: 4px solid #000; font-family: 'VT323'; font-size: 1.2rem; }
 
         footer { text-align: center; padding: 2rem 1rem; background: #000; color: #888; font-size: 0.7rem; }
+        
+        .loading-overlay { 
+            position: absolute; top:0; left:0; width:100%; height:100%; 
+            background: rgba(0,0,0,0.8); z-index: 1000; 
+            display: none; justify-content: center; align-items: center;
+            color: white; font-family: 'Press Start 2P'; font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
 
     <div class="app-shell">
+        <div id="loading" class="loading-overlay">SYNCING DATA...</div>
+        
         <nav>
             <div class="logo-text pixel-font" onclick="switchView('home')">PIXEL BIN HEROES</div>
             <div class="nav-buttons">
-                <button class="btn" onclick="switchView('home')">MAP</button>
-                <div id="auth-nav" style="display: flex; gap: 5px;">
-                    <button class="btn btn-blue" onclick="switchView('login')">LOGIN</button>
-                    <button class="btn btn-green" onclick="switchView('register')">SIGN UP</button>
-                </div>
-                <div id="user-nav" style="display: none; gap: 5px;">
-                    <button class="btn btn-green" onclick="handleLogout()">LOGOUT</button>
-                </div>
+                <button class="btn" onclick="switchView('home')">WORLD MAP</button>
+                <button class="btn btn-green" onclick="switchView('register')">NEW PLAYER</button>
             </div>
         </nav>
 
         <!-- HOME -->
         <div id="home-view" class="view active">
             <section class="hero">
-                <h1>LEVEL UP YOUR BINS!</h1>
+                <h1>GLOBAL HERO BOARD</h1>
                 <div class="pixel-banner">
                     <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
                         <rect width="100" height="50" fill="#5C94FC" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
@@ -107,39 +110,25 @@
             <div id="profiles-container" class="card-grid"></div>
         </div>
 
-        <!-- LOGIN -->
-        <div id="login-view" class="view">
-            <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">LOGIN</h2>
-            <div class="auth-container">
-                <form id="login-form">
-                    <div class="form-group"><label>EMAIL</label><input type="email" id="login-email" required></div>
-                    <div class="form-group"><label>PASSWORD</label><input type="password" id="login-password" required></div>
-                    <button type="submit" class="btn btn-blue" style="width:100%; margin-top:10px;">ENTER GAME</button>
-                </form>
-            </div>
-        </div>
-
         <!-- REGISTER -->
         <div id="register-view" class="view">
-            <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">NEW PLAYER</h2>
+            <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">JOIN WORLD</h2>
             <div class="auth-container">
                 <form id="signup-form">
-                    <div class="form-group"><label>EMAIL</label><input type="email" id="signup-email" required></div>
-                    <div class="form-group"><label>PASSWORD</label><input type="password" id="signup-password" required></div>
-                    <hr style="margin:15px 0; border:2px solid #000;">
-                    <div class="form-group"><label>HERO NICKNAME</label><input type="text" id="signup-name" required></div>
-                    <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="signup-neighborhood" required></div>
-                    <button type="submit" class="btn btn-green" style="width:100%; margin-top:10px;">CREATE HERO</button>
+                    <div class="form-group"><label>HERO NAME</label><input type="text" id="signup-name" required placeholder="e.g. BinMaster"></div>
+                    <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="signup-neighborhood" required placeholder="e.g. Cowan Heights"></div>
+                    <div class="form-group"><label>TEAM / GROUP</label><input type="text" id="signup-group" placeholder="e.g. Scouts"></div>
+                    <button type="submit" class="btn btn-green" style="width:100%; margin-top:10px;">ENTER THE WORLD</button>
                 </form>
             </div>
         </div>
 
         <footer>
-            <p>2026 PIXEL BIN HEROES | NL COMMUNITY</p>
+            <p>2026 PIXEL BIN HEROES | GLOBAL DATABASE ONLINE</p>
         </footer>
     </div>
 
-    <!-- MODAL -->
+    <!-- BOOKING MODAL -->
     <div id="booking-modal" class="modal-overlay">
         <div class="modal-box" style="background:white; border:8px solid var(--mario-red); padding:1.5rem; width:90%;">
             <h2 class="pixel-font" style="font-size: 0.8rem; margin-bottom: 1rem; color:#000;">HIRE HERO</h2>
@@ -151,43 +140,59 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // --- LOCAL STORAGE DATABASE SIMULATION ---
-        const DB = {
-            getUsers: () => JSON.parse(localStorage.getItem('pb_users') || '[]'),
-            getProfiles: () => JSON.parse(localStorage.getItem('pb_profiles') || '[]'),
-            saveUser: (user) => {
-                const users = DB.getUsers();
-                users.push(user);
-                localStorage.setItem('pb_users', JSON.stringify(users));
-            },
-            saveProfile: (profile) => {
-                const profiles = DB.getProfiles();
-                profiles.push(profile);
-                localStorage.setItem('pb_profiles', JSON.stringify(profiles));
-            }
-        };
+        // --- GLOBAL SHARED DATABASE (npoint.io) ---
+        // Using a persistent bin ID for this specific app
+        const DB_ENDPOINT = 'https://api.npoint.io/e9036f0605a9607f287f'; 
 
-        const fallbackHeroes = [
-            { id: 'f1', nickname: "Bin-Buster Pete", neighborhood: "Cowan Heights", avatar: "🦸‍♂️" },
-            { id: 'f2', nickname: "Retro Riley", neighborhood: "Pearlview", avatar: "🛡️" }
-        ];
+        let map, heroes = [];
 
-        let map, currentUser = JSON.parse(sessionStorage.getItem('pb_session') || 'null');
-
-        function initApp() {
+        async function initApp() {
             initMap();
-            updateUIForAuth();
+            await syncDatabase();
+        }
+
+        async function syncDatabase() {
+            showLoading(true);
+            try {
+                const response = await fetch(DB_ENDPOINT);
+                const data = await response.json();
+                heroes = data.heroes || [];
+                renderProfiles();
+                updateMap();
+            } catch (e) {
+                console.error("DB Sync Error:", e);
+                // Fallback to local memory if global fails
+                heroes = JSON.parse(localStorage.getItem('pb_global_cache') || '[]');
+                renderProfiles();
+            }
+            showLoading(false);
+        }
+
+        async function saveToGlobalDB(newHero) {
+            showLoading(true);
+            heroes.push(newHero);
+            
+            // Update cache
+            localStorage.setItem('pb_global_cache', JSON.stringify(heroes));
+
+            try {
+                await fetch(DB_ENDPOINT, {
+                    method: 'POST', // npoint uses POST for updates
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ heroes: heroes })
+                });
+                alert("HERO ADDED TO THE GLOBAL WORLD!");
+            } catch (e) {
+                alert("Hero saved locally, but global sync failed. Check connection!");
+            }
+            showLoading(false);
+            switchView('home');
             renderProfiles();
+            updateMap();
         }
 
-        function updateUIForAuth() {
-            document.getElementById('auth-nav').style.display = currentUser ? 'none' : 'flex';
-            document.getElementById('user-nav').style.display = currentUser ? 'flex' : 'none';
-        }
-
-        function handleLogout() {
-            sessionStorage.removeItem('pb_session');
-            location.reload();
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'flex' : 'none';
         }
 
         function switchView(viewId) {
@@ -199,19 +204,25 @@
         function initMap() {
             map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
             L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-            
-            const allHeroes = [...fallbackHeroes, ...DB.getProfiles()];
-            allHeroes.forEach(h => {
-                L.marker([47.54 + (Math.random()*0.04-0.02), -52.75 + (Math.random()*0.04-0.02)]).addTo(map)
-                    .bindPopup(`<b>${h.nickname}</b><br>${h.neighborhood}`);
+        }
+
+        function updateMap() {
+            // Remove old markers
+            map.eachLayer(layer => { if(layer instanceof L.Marker) map.removeLayer(layer); });
+            // Add new markers
+            heroes.forEach(h => {
+                L.marker([h.lat, h.lng]).addTo(map).bindPopup(`<b>${h.nickname}</b><br>${h.neighborhood}`);
             });
         }
 
         function renderProfiles() {
             const container = document.getElementById('profiles-container');
             container.innerHTML = '';
-            const allHeroes = [...fallbackHeroes, ...DB.getProfiles()];
-            allHeroes.forEach(h => {
+            if(heroes.length === 0) {
+                container.innerHTML = '<p style="color:white; text-align:center;">No Heroes in the world yet. Be the first!</p>';
+                return;
+            }
+            heroes.forEach(h => {
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
                 card.innerHTML = `
@@ -230,33 +241,19 @@
         }
         function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
 
-        // --- AUTH LOGIC ---
         document.getElementById('signup-form').addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('signup-email').value;
-            const password = document.getElementById('signup-password').value;
-            const nickname = document.getElementById('signup-name').value;
-            const neighborhood = document.getElementById('signup-neighborhood').value;
-
-            if(DB.getUsers().find(u => u.email === email)) return alert("Email already registered!");
-
-            DB.saveUser({ email, password });
-            DB.saveProfile({ id: Date.now(), nickname, neighborhood, avatar: "🦸‍♂️" });
-            
-            alert('HERO CREATED! Please Login.');
-            switchView('login');
-        });
-
-        document.getElementById('login-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value;
-            const password = document.getElementById('login-password').value;
-            const user = DB.getUsers().find(u => u.email === email && u.password === password);
-
-            if(user) {
-                sessionStorage.setItem('pb_session', JSON.stringify(user));
-                location.reload();
-            } else alert("Invalid credentials!");
+            const newHero = {
+                id: Date.now(),
+                nickname: document.getElementById('signup-name').value,
+                neighborhood: document.getElementById('signup-neighborhood').value,
+                group: document.getElementById('signup-group').value,
+                avatar: "🦸‍♂️",
+                lat: 47.54 + (Math.random()*0.06-0.03),
+                lng: -52.75 + (Math.random()*0.06-0.03)
+            };
+            saveToGlobalDB(newHero);
+            this.reset();
         });
 
         window.onload = initApp;
