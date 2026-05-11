@@ -46,11 +46,16 @@
         .nav-buttons { display: flex; justify-content: center; gap: 5px; flex-wrap: wrap; }
         
         .btn {
+            display: block; /* Ensure block for width 100% to work correctly */
+            width: fit-content; /* Default to content width */
+            margin: 0 auto; /* Center buttons */
             padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.5rem;
             cursor: pointer; border: 4px solid #000;
             background: var(--coin-gold); color: #000;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.5); text-decoration: none;
         }
+
+        .btn-full { width: 100%; } /* Utility class for full width */
         .btn:active { box-shadow: none; transform: translate(4px, 4px); }
         .btn-green { background: var(--luigi-green); color: white; }
         .btn-blue { background: var(--mario-blue); color: white; }
@@ -128,13 +133,12 @@
         </footer>
     </div>
 
-    <!-- BOOKING MODAL -->
     <div id="booking-modal" class="modal-overlay">
-        <div class="modal-box" style="background:white; border:8px solid var(--mario-red); padding:1.5rem; width:90%;">
+        <div class="modal-box" style="background:white; border:8px solid var(--mario-red); padding:1.5rem; width:90%; box-sizing: border-box;">
             <h2 class="pixel-font" style="font-size: 0.8rem; margin-bottom: 1rem; color:#000;">HIRE HERO</h2>
             <p id="booking-info" style="margin-bottom: 1.5rem; font-size: 1.2rem; color:#000;"></p>
-            <button class="btn btn-green" style="width:100%;" onclick="alert('MISSION REQUESTED!')">SEND REQUEST</button>
-            <button class="btn" style="width:100%; background:#ccc; margin-top:10px;" onclick="closeModal()">CANCEL</button>
+            <button class="btn btn-green btn-full" onclick="alert('MISSION REQUESTED!')">SEND REQUEST</button>
+            <button class="btn btn-full" style="background:#ccc; margin-top:10px;" onclick="closeModal()">CANCEL</button>
         </div>
     </div>
 
@@ -229,7 +233,7 @@
                     <div class="avatar-box">${h.avatar || '👾'}</div>
                     <div class="pixel-font" style="font-size:0.7rem;">${h.nickname}</div>
                     <div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${h.neighborhood}</div>
-                    <button class="btn btn-green" style="width:100%;" onclick="openBooking('${h.nickname}')">HIRE HERO</button>
+                    <button class="btn btn-green btn-full" onclick="openBooking('${h.nickname}')">HIRE HERO</button>
                 `;
                 container.appendChild(card);
             });
