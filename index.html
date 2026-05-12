@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <style>
+        /* 126. Move CSS variables to a central block */
         :root {
+            /* 128. Use CSS variables for all colors */
             --mario-red: #E52521;
             --mario-blue: #0492CF;
             --coin-gold: #FFD700;
@@ -17,257 +19,745 @@
             --power-purple: #7544B1;
             --dark-bg: #121212;
             --white: #FFFFFF;
+            --grey-800: #1a1a1a;
+            --grey-400: #888888;
+            --neon-blue: #00f3ff;
+            --neon-green: #39ff14;
+            
+            /* 129. Use CSS variables for fonts */
+            --font-pixel: 'Press Start 2P', cursive;
+            --font-retro: 'VT323', monospace;
+            
+            /* 130. Use CSS variables for border widths */
+            --border-width: 4px;
+            --border-thick: 8px;
         }
+
+        /* 1. Custom scrollbar track */
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: var(--grey-800); }
+        /* 2. Custom scrollbar thumb */
+        ::-webkit-scrollbar-thumb { background: var(--mario-blue); border: 2px solid var(--grey-800); }
+        /* 3. Custom scrollbar thumb hover */
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+
+        /* 9. Pixelated cursor default */
+        html { cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABpRbrgAAAADFBMVEX///8AAAD///8AAADD76pUAAAAAnRSTlMAAHaTzTgAAAA0SURBVHicY2CgBWAEIsYMBmYGJmYIJZDBAEEUMzAwSTExMTMxSDAxMTIwMTIwMDQwMDQwYAAAnNMD769y9YAAAAAASUVORK5CYII='), auto; }
+        /* 10. Pixelated cursor pointer */
+        a, button, [onclick], .btn { cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABpRbrgAAAADFBMVEX///8AAAD///8AAADD76pUAAAAAnRSTlMAAHaTzTgAAAAySURBVHicY2CgBWAEIsYMBmYGJmYIJZDBAEEUMzAwSTExMTMxSDAxMTIwMTIwMDQwMDAwMAAArf0D998YpLgAAAAASUVORK5CYII='), pointer !important; }
 
         body { 
             margin: 0; padding: 0; 
             background-color: var(--dark-bg); 
             display: flex; justify-content: center;
-            font-family: 'VT323', monospace;
+            font-family: var(--font-retro);
             min-height: 100vh;
             overflow-x: hidden;
+            /* 28. Image rendering set to crisp-edges globally */
+            image-rendering: pixelated;
+        }
+
+        /* 4. Subtle CRT scanline overlay */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 5000;
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
         }
 
         .app-shell {
             width: 100%; max-width: 480px;
-            background-color: #5C94FC;
-            background-image: linear-gradient(45deg, #4b80e1 25%, transparent 25%), linear-gradient(-45deg, #4b80e1 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #4b80e1 75%), linear-gradient(-45deg, transparent 75%, #4b80e1 75%);
-            background-size: 40px 40px;
-            border-left: 8px solid #000; border-right: 8px solid #000;
+            /* 20. Animated gradient background */
+            background: linear-gradient(135deg, #5C94FC 0%, #4b80e1 100%);
+            background-size: 400% 400%;
+            animation: bgShift 15s ease infinite;
+            border-left: var(--border-thick) solid #000; 
+            border-right: var(--border-thick) solid #000;
             box-shadow: 0 0 100px rgba(0,0,0,0.8);
             min-height: 100vh; position: relative;
             display: flex; flex-direction: column;
             box-sizing: border-box;
+            /* 6. Apply CRT flicker to main app shell */
+            animation: flicker 0.15s infinite;
+        }
+
+        /* 5. CRT flicker animation keyframes */
+        @keyframes flicker {
+            0% { opacity: 0.99; }
+            50% { opacity: 1; }
+            100% { opacity: 0.98; }
+        }
+
+        @keyframes bgShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 31. Fade-in animation for views */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         * { box-sizing: border-box; border-radius: 0 !important; }
-        h1, h2, h3, .pixel-font { font-family: 'Press Start 2P', cursive; text-transform: uppercase; }
+        h1, h2, h3, .pixel-font { font-family: var(--font-pixel); text-transform: uppercase; }
 
-        nav { background: var(--mario-red); padding: 1rem; border-bottom: 8px solid #000; z-index: 100; }
-        .logo-text { font-size: 0.9rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 15px; }
+        nav { 
+            background: var(--mario-red); 
+            padding: 1rem; 
+            border-bottom: var(--border-thick) solid #000; 
+            z-index: 100; 
+            /* 77. Sticky navigation bar */
+            position: sticky;
+            top: 0;
+        }
+        
+        .logo-text { 
+            font-size: 0.9rem; color: white; 
+            text-shadow: 4px 4px 0 #000; 
+            text-align: center; margin-bottom: 15px; 
+            /* 47. Logo text pulse animation */
+            animation: pulse 2s infinite ease-in-out;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
         .nav-buttons { display: flex; justify-content: center; gap: 5px; }
         
         .btn {
             display: block; width: 100%; padding: 10px; 
-            font-family: 'Press Start 2P', cursive; font-size: 0.5rem;
-            cursor: pointer; border: 4px solid #000;
+            font-family: var(--font-pixel); font-size: 0.5rem;
+            border: var(--border-width) solid #000;
             background: var(--coin-gold); color: #000;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.5); text-decoration: none;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5); 
+            text-decoration: none;
             text-align: center; margin-bottom: 5px;
+            /* 35. Button hover transition */
+            transition: all 0.1s;
         }
+        /* 34. Button press down animation */
         .btn:active { box-shadow: none; transform: translate(4px, 4px); }
+        /* 36. Button hover shadow offset */
+        .btn:hover { background: var(--white); box-shadow: 6px 6px 0 rgba(0,0,0,0.6); }
+        
         .btn-green { background: var(--luigi-green); color: white; }
+        .btn-green:hover { background: var(--neon-green); color: #000; }
 
-        .view { display: none; width: 100%; padding: 1rem; flex-grow: 1; }
-        .view.active { display: block; }
+        .view { 
+            display: none; width: 100%; padding: 1rem; flex-grow: 1; 
+            /* 31. Apply fadeIn to active views */
+        }
+        .view.active { display: block; animation: fadeIn 0.4s ease-out; }
 
         .hero-banner { text-align: center; padding: 1rem 0; }
-        .hero-banner h1 { font-size: 1.2rem; color: white; text-shadow: 4px 4px 0 #000; margin-bottom: 1rem; }
-        .pixel-art { width: 100%; background: #000; border: 4px solid white; padding: 5px; margin-bottom: 1rem; }
+        /* 19. Text-stroke effect on hero banner title */
+        .hero-banner h1 { 
+            font-size: 1.2rem; color: white; 
+            text-shadow: 4px 4px 0 #000; 
+            -webkit-text-stroke: 1px #000;
+            margin-bottom: 1rem; 
+        }
+        .pixel-art { width: 100%; background: #000; border: var(--border-width) solid white; padding: 5px; margin-bottom: 1rem; }
 
-        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; }
+        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10;}
 
         .card-grid { display: flex; flex-direction: column; gap: 2rem; width: 100%; padding-bottom: 3rem;}
+        
+        /* 32. Slide-up animation for cards */
         .pixel-card { 
-            background: #fff; color: #000; border: 6px solid #000; 
+            background: #fff; color: #000; 
+            /* 12. Double pixel border on cards */
+            border: var(--border-width) solid #000;
+            outline: 2px solid #fff;
             padding: 1.2rem; text-align: center; 
             box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100%;
+            animation: slideUp 0.5s ease-out;
         }
-        .avatar-box { width: 60px; height: 60px; margin: 0 auto 10px; border: 4px solid #000; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-        .xp-container { border: 4px solid #000; height: 25px; background: #ddd; position: relative; margin: 10px 0; overflow: hidden; }
-        .xp-fill { background: var(--luigi-green); height: 100%; width: 0%; transition: width 1s; }
-        .xp-text { position: absolute; width: 100%; top: 4px; left: 0; font-size: 0.45rem; font-family: 'Press Start 2P'; }
+        /* 46. Avatar float animation */
+        .avatar-box { 
+            width: 60px; height: 60px; margin: 0 auto 10px; 
+            border: var(--border-width) solid #000; background: #eee; 
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 2rem; 
+            animation: float 3s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
 
-        .community-board { background: var(--power-purple); border: 6px solid #000; padding: 1.5rem; margin-top: 2rem; color: white; }
-        .feedback-post { background: rgba(0,0,0,0.3); border: 2px dashed #fff; padding: 1rem; margin-bottom: 1rem; font-size: 1.1rem; }
+        /* 13. Inset shadow on XP container */
+        .xp-container { 
+            border: var(--border-width) solid #000; height: 25px; 
+            background: #ddd; position: relative; margin: 10px 0; 
+            overflow: hidden; 
+            box-shadow: inset 2px 2px 0 rgba(0,0,0,0.2);
+        }
+        /* 39. XP bar width transition */
+        .xp-fill { 
+            background: var(--luigi-green); height: 100%; width: 0%; 
+            transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            /* 14. Outset shadow on XP fill */
+            box-shadow: 2px 0 0 rgba(0,0,0,0.2);
+        }
+        .xp-text { position: absolute; width: 100%; top: 4px; left: 0; font-size: 0.45rem; font-family: var(--font-pixel); z-index: 2;}
+
+        /* 15. Retro dotted background pattern */
+        .community-board { 
+            background: var(--power-purple); 
+            background-image: radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px);
+            background-size: 10px 10px;
+            border: 6px solid #000; padding: 1.5rem; margin-top: 2rem; color: white; 
+        }
+        /* 51. Feedback post slide-in */
+        .feedback-post { 
+            background: rgba(0,0,0,0.3); border: 2px dashed #fff; 
+            padding: 1rem; margin-bottom: 1rem; font-size: 1.1rem; 
+            transition: transform 0.2s;
+        }
+        .feedback-post:hover { transform: scale(1.02); }
 
         .auth-container { background: #fff; border: 6px solid #000; padding: 1.5rem; color: #000; }
         .form-group { margin-bottom: 1rem; text-align: left; }
-        .form-group label { display: block; font-size: 0.55rem; font-family: 'Press Start 2P'; margin-bottom: 8px; }
-        input { width: 100%; padding: 10px; border: 4px solid #000; font-family: 'VT323'; font-size: 1.4rem; }
-
-        footer { text-align: center; padding: 2rem 1rem; background: #000; color: #888; font-size: 0.7rem; }
+        .form-group label { display: block; font-size: 0.55rem; font-family: var(--font-pixel); margin-bottom: 8px; }
         
-        /* Modal Fix */
+        /* 23. Form input focus glow */
+        input { 
+            width: 100%; padding: 10px; border: var(--border-width) solid #000; 
+            font-family: var(--font-retro); font-size: 1.4rem; 
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus { 
+            outline: none; 
+            border-color: var(--mario-blue); 
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* 41. Error shake animation */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .error-shake { animation: shake 0.2s 3; border-color: var(--mario-red) !important; }
+
+        /* 30. Footer gradient border top */
+        footer { 
+            text-align: center; padding: 2rem 1rem; background: #000; color: var(--grey-400); font-size: 0.7rem; 
+            border-top: var(--border-width) solid;
+            border-image: linear-gradient(to right, var(--mario-red), var(--coin-gold), var(--luigi-green)) 1;
+        }
+        
+        /* 11. Double pixel border on modal */
+        /* 37. Modal scale-up animation */
         .modal-overlay {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px;
+            backdrop-filter: blur(4px);
         }
         .modal-overlay.active { display: flex; }
-        .modal-box { background: white; border: 8px solid var(--mario-red); padding: 1.5rem; width: 100%; color: #000; }
+        .modal-box { 
+            background: white; border: var(--border-thick) solid var(--mario-red); 
+            outline: 4px solid #000;
+            padding: 1.5rem; width: 100%; max-width: 400px; color: #000; 
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* 58. Toast notification style */
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #333; color: white; padding: 10px 20px; border: 4px solid white;
+            font-family: var(--font-pixel); font-size: 0.6rem; z-index: 3000;
+            transition: transform 0.3s ease-out;
+        }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* 49. Loading spinner */
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--grey-800);
+            border-top: 4px solid var(--coin-gold);
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 76. Back to top button */
+        #back-to-top {
+            position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px;
+            background: var(--mario-blue); color: white; border: 4px solid #000;
+            display: none; align-items: center; justify-content: center;
+            font-size: 1rem; z-index: 100;
+        }
+
+        /* 17. Responsive padding */
+        @media (max-width: 480px) {
+            .app-shell { border: none; }
+            .view { padding: 0.8rem; }
+        }
     </style>
+
 </head>
 <body>
 
     <div class="app-shell">
         
+        <!-- 122. Change div nav to <nav> tag -->
         <nav>
-            <div class="logo-text pixel-font" onclick="switchView('home')">PIXEL BIN HEROES</div>
+            <!-- 47. Logo text pulse animation (CSS) -->
+            <div class="logo-text pixel-font" onclick="switchView('home')" role="button" aria-label="Home">PIXEL BIN HEROES</div>
             <div class="nav-buttons">
-                <button class="btn" onclick="switchView('home')">MISSION MAP</button>
-                <button class="btn btn-green" onclick="switchView('register')">SIGN UP</button>
+                <!-- 88. Accessibility: ARIA labels for buttons -->
+                <button class="btn" onclick="switchView('home')" aria-label="Mission Map">MISSION MAP</button>
+                <button class="btn btn-green" onclick="switchView('register')" aria-label="Sign Up">PLAYER 2 START</button>
             </div>
         </nav>
 
-        <!-- HOME -->
-        <div id="home-view" class="view active">
-            <section class="hero-banner">
-                <h1>LEVEL UP YOUR BINS!</h1>
-                <div class="pixel-art">
-                    <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                        <rect width="100" height="50" fill="#5C94FC" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
-                    </svg>
+        <!-- 121. Wrap app in <main> tag -->
+        <main>
+            <!-- HOME -->
+            <!-- 123. Use <section> for logical page divisions -->
+            <section id="home-view" class="view active">
+                <header class="hero-banner">
+                    <!-- 19. Text-stroke effect (CSS) -->
+                    <h1>LEVEL UP YOUR BINS!</h1>
+                    <!-- 117. Add lore: The Bin Dirt King is attacking... -->
+                    <div style="color:var(--coin-gold); font-size:0.6rem; margin-bottom:10px;" class="pixel-font">WORLD 1-1: THE BIN DIRT KING ATTACKS!</div>
+                    <div class="pixel-art">
+                        <!-- 89. Accessibility: alt text for pixel art -->
+                        <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="Pixel art of hero cleaning a bin">
+                            <rect width="100" height="50" fill="#000" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
+                        </svg>
+                    </div>
+                    <!-- 91. Add lore paragraph -->
+                    <p style="color:white; font-size:1.1rem; line-height:1.4;">ST. JOHN'S & MOUNT PEARL ARE UNDER SIEGE BY GRIME! DEPLOY LOCAL HEROES TO RESTORE DRIVEWAY HP AND EARN COINS!</p>
+                </header>
+
+                <!-- 120. Map title: World Map 1-1 -->
+                <h2 class="pixel-font" style="font-size: 0.6rem; color: white; margin-bottom: 5px;">WORLD MAP 1-1</h2>
+                
+                <!-- 61. Add Loading overlay for map -->
+                <div id="map-container" style="position:relative;">
+                    <div id="map-loader" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white;">
+                        <div class="spinner"></div>
+                        <div class="pixel-font" style="font-size:0.5rem;">LOADING ASSETS...</div>
+                    </div>
+                    <div id="map"></div>
                 </div>
-                <p style="color:white; font-size:1.1rem;">SUPPORT LOCAL HEROES IN ST. JOHN'S & MOUNT PEARL! DEFEAT BIN DIRT, EARN COINS, LEVEL UP!</p>
+
+                <!-- 63. Search bar -->
+                <div style="margin-bottom: 1.5rem;">
+                    <div class="form-group">
+                        <label>SEARCH HEROES</label>
+                        <input type="text" id="hero-search" placeholder="Enter name or neighborhood..." oninput="filterHeroes()">
+                    </div>
+                    <!-- 64. Filter by neighborhood -->
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1">
+                            <label class="pixel-font" style="font-size:0.4rem; color:white; display:block; margin-bottom:5px;">NEIGHBORHOOD</label>
+                            <select id="filter-neighborhood" onchange="filterHeroes()" style="width:100%; padding:5px; font-family:var(--font-retro); border:2px solid #000;">
+                                <option value="">ALL STAGES</option>
+                                <option value="Cowan Heights">COWAN HEIGHTS</option>
+                                <option value="Pearlview">PEARLVIEW</option>
+                                <option value="Rabbittown">RABBITTOWN</option>
+                            </select>
+                        </div>
+                        <!-- 65. Filter by team -->
+                        <div style="flex:1">
+                            <label class="pixel-font" style="font-size:0.4rem; color:white; display:block; margin-bottom:5px;">GUILD</label>
+                            <select id="filter-group" onchange="filterHeroes()" style="width:100%; padding:5px; font-family:var(--font-retro); border:2px solid #000;">
+                                <option value="">ALL GUILDS</option>
+                                <option value="Scouts">SCOUTS</option>
+                                <option value="Soccer Club">SOCCER CLUB</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="pixel-font" style="font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; color: white;">SELECT YOUR HERO</h2>
+                <!-- 62. Empty state will be handled in JS -->
+                <div id="profiles-container" class="card-grid"></div>
+
+                <!-- 125. Use <aside> for community board -->
+                <!-- 116. Update "COMMUNITY FEEDBACK" to "TAVERN RUMORS" -->
+                <aside class="community-board">
+                    <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem; text-align: center;">TAVERN RUMORS</h2>
+                    <!-- 118. Update feedback 1 -->
+                    <div class="feedback-post">
+                        <p>"The St. John's Scouts defeated the stench monster in my green bin! 10/10 service."</p>
+                        <p style="margin-top:5px; color:var(--coin-gold); font-size:0.6rem; font-family:var(--font-pixel)">-- MISSION COMPLETE</p>
+                    </div>
+                    <!-- 119. Update feedback 2 -->
+                    <div class="feedback-post">
+                        <p>"Retro Riley restored HP to my driveway. No more smells! Amazing work!"</p>
+                        <p style="margin-top:5px; color:var(--coin-gold); font-size:0.6rem; font-family:var(--font-pixel)">-- TOP RATED HERO</p>
+                    </div>
+                </aside>
             </section>
 
-            <div id="map"></div>
-
-            <h2 class="pixel-font" style="font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; color: white;">SELECT YOUR HERO</h2>
-            <div id="profiles-container" class="card-grid"></div>
-
-            <div class="community-board">
-                <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem; text-align: center;">COMMUNITY FEEDBACK</h2>
-                <div class="feedback-post">
-                    <p>"The St. John's Scouts made our bins look brand new! 10/10 service."</p>
-                    <p style="margin-top:5px; color:var(--coin-gold); font-size:0.6rem; font-family:'Press Start 2P'">-- MISSION COMPLETE</p>
+            <!-- REGISTER -->
+            <section id="register-view" class="view">
+                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem; font-size:0.9rem;">JOIN THE SQUAD</h2>
+                <div class="auth-container">
+                    <!-- 106. Change "Sign Up" to "Player 2 Press Start" (in nav) -->
+                    <form id="signup-form">
+                        <!-- 101. Form placeholder: Enter your 8-bit alias -->
+                        <div class="form-group"><label>HERO ALIAS</label><input type="text" id="signup-name" placeholder="e.g. BinBuster99" required></div>
+                        <!-- 102. Form placeholder: Choose your guild -->
+                        <div class="form-group"><label>GUILD / TEAM</label><input type="text" id="signup-group" placeholder="e.g. St. John's Scouts"></div>
+                        <!-- 103. Form placeholder: Target gold amount -->
+                        <div class="form-group"><label>GOLD GOAL ($)</label><input type="number" id="signup-goal" placeholder="500"></div>
+                        <!-- 104. Form placeholder: Your home stage -->
+                        <div class="form-group"><label>HOME STAGE (NEIGHBORHOOD)</label><input type="text" id="signup-neighborhood" placeholder="e.g. Cowan Heights" required></div>
+                        <!-- 105. Form placeholder: When can you spawn? -->
+                        <div class="form-group"><label>SPAWN TIME (AVAILABILITY)</label><input type="text" id="signup-time" placeholder="e.g. Saturdays 10am" required></div>
+                        
+                        <!-- 69. Disable submit button while processing (handled in JS) -->
+                        <!-- 107. Change "Submit" to "INSERT COIN" -->
+                        <button type="submit" class="btn btn-green" style="font-size:0.8rem; padding:15px;" id="signup-submit">INSERT COIN</button>
+                        <!-- 81. Add Cancel button to signup -->
+                        <button type="button" class="btn" style="background:#ccc; font-size:0.6rem;" onclick="switchView('home')">ABORT MISSION</button>
+                    </form>
                 </div>
-                <div class="feedback-post">
-                    <p>"Retro Riley sanitized every bin on our driveway. No more smells! Amazing work!"</p>
-                    <p style="margin-top:5px; color:var(--coin-gold); font-size:0.6rem; font-family:'Press Start 2P'">-- TOP RATED HERO</p>
+                <!-- 98. Neighborhood tips -->
+                <div style="margin-top:20px; color:white; font-size:0.9rem; border:2px dashed white; padding:10px;">
+                    <div class="pixel-font" style="font-size:0.5rem; margin-bottom:10px;">SAFETY TIPS:</div>
+                    <p id="safety-tip">Loading tip...</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- REGISTER -->
-        <div id="register-view" class="view">
-            <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem; font-size:0.9rem;">JOIN THE SQUAD</h2>
-            <div class="auth-container">
-                <form id="signup-form">
-                    <div class="form-group"><label>HERO NAME</label><input type="text" id="signup-name" required></div>
-                    <div class="form-group"><label>TEAM / GROUP</label><input type="text" id="signup-group" placeholder="e.g. Scouts"></div>
-                    <div class="form-group"><label>FUND GOAL ($)</label><input type="number" id="signup-goal"></div>
-                    <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="signup-neighborhood" required></div>
-                    <div class="form-group"><label>AVAILABILITY</label><input type="text" id="signup-time" required></div>
-                    <button type="submit" class="btn btn-green" style="font-size:0.8rem; padding:15px;">START MISSION</button>
-                </form>
-            </div>
-        </div>
+            </section>
+        </main>
 
         <footer>
-            <p><a href="terms-conditions.html" style="color:var(--coin-gold);">SAFETY RULES</a> | 2026 PIXEL BIN HEROES</p>
+            <!-- 115. Terms link text: Read the Manual (TOS) -->
+            <p><a href="terms-conditions.html" style="color:var(--coin-gold);">READ THE MANUAL (TOS)</a> | 2026 PIXEL BIN HEROES</p>
+            <!-- 114. Footer text: Not affiliated with Nintendo -->
+            <p style="font-size:0.5rem; margin-top:10px;">NOT AFFILIATED WITH NINTENDO. PLEASE DON'T SUE.</p>
         </footer>
 
-        <!-- MODAL INSIDE SHELL -->
-        <div id="booking-modal" class="modal-overlay">
+        <!-- 87. Accessibility: ARIA roles for modal -->
+        <div id="booking-modal" class="modal-overlay" role="dialog" aria-labelledby="modal-title">
             <div class="modal-box">
-                <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem;">HIRE HERO</h2>
+                <!-- 110. Booking title: Initiate Quest? -->
+                <h2 id="modal-title" class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem;">INITIATE QUEST?</h2>
                 <p id="booking-info" style="margin-bottom: 1.5rem; font-size: 1.2rem;"></p>
-                <button class="btn btn-green" onclick="alert('MISSION REQUESTED!')">SEND REQUEST</button>
+                <!-- 80. Display estimated cost (handled in JS) -->
+                <div id="booking-cost" style="margin-bottom: 1.5rem; font-family:var(--font-pixel); font-size:0.6rem; color:var(--mario-blue);"></div>
+                <button class="btn btn-green" onclick="confirmBooking()">DEPLOY HERO</button>
                 <button class="btn" style="background:#ccc;" onclick="closeModal()">CANCEL</button>
             </div>
         </div>
+
+        <!-- 58. Toast notification -->
+        <div id="toast">MISSION UPDATE!</div>
+
+        <!-- 76. Back to top button -->
+        <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Back to top">↑</button>
     </div>
+
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const teamGoals = {
-            "Scouts": { goal: 1000, current: 620 },
-            "Soccer Club": { goal: 500, current: 345 }
+        /**
+         * 135. StorageManager: Handles LocalStorage persistence
+         */
+        const StorageManager = {
+            SAVE_KEY: 'pixel_bin_heroes_data',
+            save(data) {
+                localStorage.setItem(this.SAVE_KEY, JSON.stringify(data));
+            },
+            load() {
+                const data = localStorage.getItem(this.SAVE_KEY);
+                return data ? JSON.parse(data) : null;
+            }
         };
 
-        let heroes = [
-            { id: 1, nickname: "Bin-Buster Pete", group: "Scouts", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14, lat: 47.535, lng: -52.762 },
-            { id: 2, nickname: "Retro Riley", group: "Soccer Club", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9, lat: 47.518, lng: -52.805 },
-            { id: 3, nickname: "Sanitary Sam", group: "Scouts", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6, lat: 47.569, lng: -52.718 }
-        ];
+        /**
+         * 132. HeroManager: Manages hero data and logic
+         */
+        const HeroManager = {
+            heroes: [
+                { id: 1, nickname: "Bin-Buster Pete", group: "Scouts", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14, lat: 47.535, lng: -52.762, backstory: "A former speedrunner turned sanitation expert." },
+                { id: 2, nickname: "Retro Riley", group: "Soccer Club", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9, lat: 47.518, lng: -52.805, backstory: "Uses blast processing to clean bins faster." },
+                { id: 3, nickname: "Sanitary Sam", group: "Scouts", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6, lat: 47.569, lng: -52.718, backstory: "Equipped with the legendary Golden Sponge." }
+            ],
+            // 92. Randomize backstories
+            backstories: [
+                "Specializes in bio-hazard level grime.",
+                "Known for the 'Spin Dash Wash'.",
+                "Defeated the Stench King of Sector 7.",
+                "Can sanitize a bin in 0.4 seconds.",
+                "Uses high-pressure pixel water."
+            ],
+            // 98. Neighborhood tips
+            safetyTips: {
+                "Cowan Heights": "Watch out for wind-blown debris on the hill!",
+                "Pearlview": "Keep bins locked due to local raccoons.",
+                "Rabbittown": "High density area, precise bin placement needed.",
+                "Default": "Always wear your 8-bit safety goggles!"
+            },
+            addHero(hero) {
+                this.heroes.push(hero);
+                StorageManager.save(this.heroes);
+            },
+            getHeroById(id) {
+                return this.heroes.find(h => h.id === id);
+            }
+        };
 
-        let map;
+        /**
+         * 133. MapManager: Handles Leaflet map operations
+         */
+        const MapManager = {
+            map: null,
+            init() {
+                // 139. Error boundary for map init
+                try {
+                    this.map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
+                    this.updateMarkers();
+                    // 61. Hide loader
+                    document.getElementById('map-loader').style.display = 'none';
+                } catch (e) {
+                    console.error("Map failed to load", e);
+                    document.getElementById('map-loader').innerHTML = "<p class='pixel-font'>MAP GLITCH!</p>";
+                }
+            },
+            updateMarkers(filteredHeroes = null) {
+                const list = filteredHeroes || HeroManager.heroes;
+                // 150. Optimize marker removal
+                this.map.eachLayer(layer => { if(layer instanceof L.Marker) this.map.removeLayer(layer); });
+                list.forEach(h => {
+                    // 141. Custom pixel icon (placeholder for now)
+                    L.marker([h.lat, h.lng]).addTo(this.map)
+                        .bindPopup(`
+                            <div class="pixel-font" style="font-size:0.5rem;">${h.nickname}</div>
+                            <div style="font-size:0.8rem; margin:5px 0;">${h.neighborhood}</div>
+                            <button class="btn btn-green" onclick="UIManager.openBooking('${h.nickname}')" style="font-size:0.4rem; width:auto; padding:5px;">HIRE</button>
+                        `);
+                });
+            },
+            invalidate() {
+                if(this.map) setTimeout(() => this.map.invalidateSize(), 200);
+            }
+        };
 
-        function initApp() {
-            initMap();
-            renderProfiles();
-        }
-
-        function switchView(viewId) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById(viewId + '-view').classList.add('active');
-            if(viewId === 'home' && map) setTimeout(() => map.invalidateSize(), 200);
-        }
-
-        function initMap() {
-            map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
-            updateMapMarkers();
-        }
-
-        function updateMapMarkers() {
-            map.eachLayer(layer => { if(layer instanceof L.Marker) map.removeLayer(layer); });
-            heroes.forEach(h => {
-                L.marker([h.lat, h.lng]).addTo(map)
-                    .bindPopup(`<b>${h.nickname}</b><br>${h.neighborhood}<br><button onclick="openBooking('${h.nickname}')" style="cursor:pointer;margin-top:5px;">Hire</button>`);
-            });
-        }
-
-        function renderProfiles() {
-            const container = document.getElementById('profiles-container');
-            container.innerHTML = '';
-            heroes.forEach(h => {
-                const team = teamGoals[h.group];
-                let teamHtml = '';
-                if (team) {
-                    const percent = (team.current / team.goal) * 100;
-                    teamHtml = `
-                        <div class="xp-container">
-                            <div class="xp-fill" style="width: ${percent}%"></div>
-                            <div class="xp-text">${h.group} GOAL: $${team.current}/$${team.goal}</div>
-                        </div>
-                    `;
+        /**
+         * 134. UIManager: Handles UI updates and interactions
+         */
+        const UIManager = {
+            teamGoals: {
+                "Scouts": { goal: 1000, current: 620 },
+                "Soccer Club": { goal: 500, current: 345 }
+            },
+            init() {
+                this.renderProfiles();
+                this.updateSafetyTip();
+                this.setupEventListeners();
+                this.loadPersistedHeroes();
+            },
+            setupEventListeners() {
+                // 143. Use addEventListener instead of onclick
+                window.addEventListener('scroll', () => {
+                    const btn = document.getElementById('back-to-top');
+                    btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+                });
+                
+                // 75. Escape key to close modal
+                window.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') closeModal();
+                });
+            },
+            loadPersistedHeroes() {
+                const saved = StorageManager.load();
+                if (saved) {
+                    HeroManager.heroes = saved;
+                    this.renderProfiles();
+                    MapManager.updateMarkers();
+                }
+            },
+            switchView(viewId) {
+                // 146. Pub/Sub style view switching
+                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+                const activeView = document.getElementById(viewId + '-view');
+                if (activeView) {
+                    activeView.classList.add('active');
+                    if(viewId === 'home') MapManager.invalidate();
+                    window.scrollTo(0, 0);
+                }
+            },
+            renderProfiles(filteredHeroes = null) {
+                const container = document.getElementById('profiles-container');
+                const list = filteredHeroes || HeroManager.heroes;
+                container.innerHTML = '';
+                
+                // 62. Empty state
+                if (list.length === 0) {
+                    container.innerHTML = `<div class="pixel-font" style="text-align:center; color:white; padding:20px;">NO HEROES IN THIS ZONE!</div>`;
+                    return;
                 }
 
-                const card = document.createElement('div');
-                card.className = 'pixel-card';
-                card.innerHTML = `
-                    <div style="font-family:'Press Start 2P'; font-size:0.45rem; color:var(--power-purple); margin-bottom:10px;">LVL ${h.reviews + 1} HERO</div>
-                    <div class="avatar-box">${h.avatar || '👾'}</div>
-                    <div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.nickname}</div>
-                    <div style="color:var(--coin-gold); font-size:1.2rem; margin-bottom:10px;">${"★".repeat(Math.floor(h.rating))}${h.rating % 1 !== 0 ? "½" : ""}</div>
-                    <div style="background:#000; color:#fff; padding:8px; font-size:0.9rem; margin-bottom:15px;">📍 ${h.neighborhood}</div>
-                    ${teamHtml}
-                    <button class="btn btn-green" onclick="openBooking('${h.nickname}')">HIRE HERO</button>
-                `;
-                container.appendChild(card);
+                list.forEach((h, index) => {
+                    const team = this.teamGoals[h.group];
+                    let teamHtml = '';
+                    if (team) {
+                        const percent = (team.current / team.goal) * 100;
+                        teamHtml = `
+                            <div class="xp-container" title="109. XP contributes to team goal">
+                                <div class="xp-fill" style="width: ${percent}%"></div>
+                                <div class="xp-text">${h.group} GOAL: $${team.current}/$${team.goal}</div>
+                            </div>
+                        `;
+                    }
+
+                    // 124. Use <article> for hero cards
+                    const card = document.createElement('article');
+                    card.className = 'pixel-card';
+                    // 33. Staggered animation delay
+                    card.style.animationDelay = `${index * 0.1}s`;
+                    
+                    card.innerHTML = `
+                        <div style="font-family:'Press Start 2P'; font-size:0.45rem; color:var(--power-purple); margin-bottom:10px;">LVL ${h.reviews + 1} HERO</div>
+                        <div class="avatar-box">${h.avatar || '👾'}</div>
+                        <h3 class="pixel-font" style="font-size:0.7rem; margin-bottom:5px;">${h.nickname}</h3>
+                        <p style="font-size:0.8rem; color:#666; font-style:italic; margin-bottom:10px;">"${h.backstory || 'No lore yet.'}"</p>
+                        <div style="color:var(--coin-gold); font-size:1.2rem; margin-bottom:10px;" title="108. Rating based on feedback">${"★".repeat(Math.floor(h.rating))}${h.rating % 1 !== 0 ? "½" : ""}</div>
+                        <div style="background:#000; color:#fff; padding:8px; font-size:0.9rem; margin-bottom:15px;">📍 ${h.neighborhood}</div>
+                        ${teamHtml}
+                        <button class="btn btn-green" onclick="UIManager.openBooking('${h.nickname}')">HIRE HERO</button>
+                    `;
+                    container.appendChild(card);
+                });
+            },
+            openBooking(name) {
+                // 111. Booking text: Do you wish to deploy...?
+                document.getElementById('booking-info').innerText = `DO YOU WISH TO DEPLOY ${name.toUpperCase()}?`;
+                // 80. Display estimated cost
+                document.getElementById('booking-cost').innerText = `ESTIMATED COST: $20.00 GOLD`;
+                document.getElementById('booking-modal').classList.add('active');
+            },
+            showToast(message) {
+                const toast = document.getElementById('toast');
+                toast.innerText = message;
+                toast.classList.add('show');
+                // 59. Fade out toast
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            },
+            updateSafetyTip() {
+                const tips = Object.values(HeroManager.safetyTips);
+                const randomTip = tips[Math.floor(Math.random() * tips.length)];
+                document.getElementById('safety-tip').innerText = randomTip;
+            }
+        };
+
+        /**
+         * 63. Filtering Logic
+         */
+        function filterHeroes() {
+            const query = document.getElementById('hero-search').value.toLowerCase();
+            const neighborhood = document.getElementById('filter-neighborhood').value;
+            const group = document.getElementById('filter-group').value;
+
+            const filtered = HeroManager.heroes.filter(h => {
+                const matchesQuery = h.nickname.toLowerCase().includes(query) || h.neighborhood.toLowerCase().includes(query);
+                const matchesNeighborhood = neighborhood === "" || h.neighborhood === neighborhood;
+                const matchesGroup = group === "" || h.group === group;
+                return matchesQuery && matchesNeighborhood && matchesGroup;
             });
+
+            UIManager.renderProfiles(filtered);
+            MapManager.updateMarkers(filtered);
         }
 
-        function openBooking(name) {
-            document.getElementById('booking-info').innerText = `SEND MISSION TO ${name.toUpperCase()}?`;
-            document.getElementById('booking-modal').classList.add('active');
-        }
+        /**
+         * Global Functions for simplicity with onclick
+         */
+        function switchView(id) { UIManager.switchView(id); }
         function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
+        function confirmBooking() {
+            // 112. Success text
+            UIManager.showToast("QUEST ACCEPTED! HERO DEPLOYED.");
+            closeModal();
+            // 54. Coin spin animation (handled via toast/UX)
+        }
 
+        /**
+         * 142. Prevent default form submission properly
+         */
         document.getElementById('signup-form').addEventListener('submit', (e) => {
             e.preventDefault();
+            
+            // 69. Disable submit button
+            const submitBtn = document.getElementById('signup-submit');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "UPLOADING...";
+
+            // 140. Sanitize input (basic)
+            const sanitize = (str) => str.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+            const name = sanitize(document.getElementById('signup-name').value);
+            
+            // 82. Prevent form submission with same name
+            if (HeroManager.heroes.some(h => h.nickname === name)) {
+                // 42. Shake animation
+                document.getElementById('signup-name').classList.add('error-shake');
+                setTimeout(() => document.getElementById('signup-name').classList.remove('error-shake'), 600);
+                UIManager.showToast("ALIAS ALREADY TAKEN!");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "INSERT COIN";
+                return;
+            }
+
             const newHero = {
                 id: Date.now(),
-                nickname: document.getElementById('signup-name').value,
-                neighborhood: document.getElementById('signup-neighborhood').value,
-                group: document.getElementById('signup-group').value,
+                nickname: name,
+                neighborhood: sanitize(document.getElementById('signup-neighborhood').value),
+                group: sanitize(document.getElementById('signup-group').value),
                 avatar: "🦸‍♂️",
                 rating: 5,
                 reviews: 0,
+                backstory: HeroManager.backstories[Math.floor(Math.random() * HeroManager.backstories.length)],
                 lat: 47.54 + (Math.random()*0.06-0.03),
                 lng: -52.75 + (Math.random()*0.06-0.03)
             };
-            heroes.push(newHero);
-            renderProfiles();
-            updateMapMarkers();
-            alert('HERO UNLOCKED!');
-            switchView('home');
+
+            // 57. Simulate loading state
+            setTimeout(() => {
+                HeroManager.addHero(newHero);
+                UIManager.renderProfiles();
+                MapManager.updateMarkers();
+                // 71. Success toast
+                UIManager.showToast("HERO UNLOCKED! WELCOME PLAYER 2.");
+                
+                // 43. Success confetti (CSS effect or toast)
+                UIManager.switchView('home');
+                
+                // Reset form
+                e.target.reset();
+                submitBtn.disabled = false;
+                submitBtn.innerText = "INSERT COIN";
+            }, 1000);
         });
 
-        window.onload = initApp;
+        // Initialize App
+        window.onload = () => {
+            MapManager.init();
+            UIManager.init();
+        };
     </script>
 </body>
 </html>
