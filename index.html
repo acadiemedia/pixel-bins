@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Bin Heroes | Full Content Edition</title>
+    <title>Pixel Bin Heroes | Global Community</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
-        /* 126. Move CSS variables to a central block */
         :root {
-            /* 128. Use CSS variables for all colors */
             --mario-red: #E52521;
             --mario-blue: #0492CF;
             --coin-gold: #FFD700;
@@ -20,802 +19,223 @@
             --dark-bg: #121212;
             --white: #FFFFFF;
             --grey-800: #1a1a1a;
-            --grey-400: #888888;
             --neon-blue: #00f3ff;
-            --neon-green: #39ff14;
-            --xp-bar: #00ff41;
-            
-            /* 129. Use CSS variables for fonts */
             --font-pixel: 'Press Start 2P', cursive;
             --font-retro: 'VT323', monospace;
-            
-            /* 130. Use CSS variables for border widths */
-            --border-width: 4px;
-            --border-thick: 8px;
         }
 
-        /* 1. Custom scrollbar track */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: var(--grey-800); }
-        /* 2. Custom scrollbar thumb */
-        ::-webkit-scrollbar-thumb { background: var(--mario-blue); border: 2px solid var(--grey-800); }
-        /* 3. Custom scrollbar thumb hover */
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
-
-        /* 9. Pixelated cursor default */
-        html { cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABpRbrgAAAADFBMVEX///8AAAD///8AAADD76pUAAAAAnRSTlMAAHaTzTgAAAA0SURBVHicY2CgBWAEIsYMBmYGJmYIJZDBAEEUMzAwSTExMTMxSDAxMTIwMTIwMDQwMDQwYAAAnNMD769y9YAAAAAASUVORK5CYII='), auto; }
-        /* 10. Pixelated cursor pointer */
-        a, button, [onclick], .btn { cursor: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABpRbrgAAAADFBMVEX///8AAAD///8AAADD76pUAAAAAnRSTlMAAHaTzTgAAAAySURBVHicY2CgBWAEIsYMBmYGJmYIJZDBAEEUMzAwSTExMTMxSDAxMTIwMTIwMDQwMDAwMAAArf0D998YpLgAAAAASUVORK5CYII='), pointer !important; }
-
         body { 
-            margin: 0; padding: 0; 
-            background-color: var(--dark-bg); 
-            display: flex; justify-content: center;
-            font-family: var(--font-retro);
-            min-height: 100vh;
-            overflow-x: hidden;
-            /* 28. Image rendering set to crisp-edges globally */
-            image-rendering: pixelated;
+            margin: 0; padding: 0; background-color: var(--dark-bg); 
+            display: flex; justify-content: center; font-family: var(--font-retro);
+            min-height: 100vh; overflow-x: hidden;
         }
 
         .app-shell {
             width: 100%; max-width: 480px;
-            /* 20. Animated gradient background */
             background: linear-gradient(135deg, #5C94FC 0%, #4b80e1 100%);
-            background-size: 400% 400%;
-            animation: bgShift 15s ease infinite;
-            border-left: var(--border-thick) solid #000; 
-            border-right: var(--border-thick) solid #000;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
-            min-height: 100vh; position: relative;
-            display: flex; flex-direction: column;
-            box-sizing: border-box;
-        }
-
-        @keyframes bgShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* 31. Fade-in animation for views */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            border-left: 8px solid #000; border-right: 8px solid #000;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8); min-height: 100vh;
+            display: flex; flex-direction: column; box-sizing: border-box;
+            position: relative;
         }
 
         * { box-sizing: border-box; border-radius: 0 !important; }
         h1, h2, h3, .pixel-font { font-family: var(--font-pixel); text-transform: uppercase; }
 
-        nav { 
-            background: var(--mario-red); 
-            padding: 1rem; 
-            border-bottom: var(--border-thick) solid #000; 
-            z-index: 100; 
-            /* 77. Sticky navigation bar */
-            position: sticky;
-            top: 0;
-        }
-        
-        .logo-text { 
-            font-size: 0.9rem; color: white; 
-            text-shadow: 4px 4px 0 #000; 
-            text-align: center; margin-bottom: 15px; 
-            /* 47. Logo text pulse animation */
-            animation: pulse 2s infinite ease-in-out;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
+        nav { background: var(--mario-red); padding: 1rem; border-bottom: 8px solid #000; z-index: 100; position: sticky; top: 0; }
+        .logo-text { font-size: 0.8rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 10px; }
+        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
 
-        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        .nav-row { display: flex; gap: 5px; margin-bottom: 5px; }
-        
         .btn {
-            display: block; width: 100%; padding: 10px; 
-            font-family: var(--font-pixel); font-size: 0.45rem;
-            border: var(--border-width) solid #000;
-            background: var(--coin-gold); color: #000;
-            box-shadow: 4px 4px 0 rgba(0,0,0,0.5); 
-            text-decoration: none;
-            text-align: center;
-            /* 35. Button hover transition */
-            transition: all 0.1s;
-            cursor: pointer;
+            display: block; width: 100%; padding: 10px; font-family: var(--font-pixel); font-size: 0.4rem;
+            border: 4px solid #000; background: var(--coin-gold); color: #000;
+            box-shadow: 4px 4px 0 rgba(0,0,0,0.5); text-decoration: none; text-align: center;
         }
-        /* 34. Button press down animation */
         .btn:active { box-shadow: none; transform: translate(4px, 4px); }
-        /* 36. Button hover shadow offset */
-        .btn:hover { background: var(--white); box-shadow: 6px 6px 0 rgba(0,0,0,0.6); }
-        
-        .btn-green { background: var(--luigi-green); color: white; }
-        .btn-green:hover { background: var(--neon-green); color: #000; }
-        .btn-blue { background: var(--mario-blue); color: white; }
-        .btn-purple { background: var(--power-purple); color: white; }
 
-        .view { 
-            display: none; width: 100%; padding: 1rem; flex-grow: 1; 
-            /* 31. Apply fadeIn to active views */
-        }
-        .view.active { display: block; animation: fadeIn 0.4s ease-out; }
+        .view { display: none; width: 100%; padding: 1rem; flex-grow: 1; animation: fadeIn 0.4s ease-out; }
+        .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero-banner { text-align: center; padding: 1rem 0; }
-        /* 19. Text-stroke effect on hero banner title */
-        .hero-banner h1 { 
-            font-size: 1.2rem; color: white; 
-            text-shadow: 4px 4px 0 #000; 
-            -webkit-text-stroke: 1px #000;
-            margin-bottom: 1rem; 
-        }
-        .pixel-art { width: 100%; background: #000; border: var(--border-width) solid white; padding: 5px; margin-bottom: 1rem; overflow: hidden; }
+        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10; }
 
-        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10; border-radius: 8px !important; }
-
-        .card-grid { 
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 24px; 
-            width: 100%; 
-            padding-bottom: 3rem;
-        }
-        
-        .pixel-card { 
-            background: #fff; color: #000; 
-            border: var(--border-width) solid #000;
-            outline: 2px solid #fff;
-            padding: 1.2rem; text-align: center; 
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100%;
-            transition: transform 0.2s, box-shadow 0.2s;
-            position: relative;
-            overflow: hidden;
-        }
-        .pixel-card:hover { transform: translateY(-5px); box-shadow: 12px 12px 0 rgba(0,0,0,0.4); }
-
-        .active-badge {
-            font-size: 0.5rem; font-family: var(--font-pixel);
-            color: var(--luigi-green); margin-bottom: 10px;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
-        }
-        .active-dot { width: 6px; height: 6px; background: var(--luigi-green); border-radius: 50% !important; animation: blink 1s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-
-        .avatar-box { 
-            width: 80px; height: 80px; margin: 0 auto 10px; 
-            border: var(--border-width) solid #000; background: #eee; 
-            display: flex; align-items: center; justify-content: center; 
-            animation: float 3s infinite ease-in-out;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-
-        .xp-container { 
-            border: var(--border-width) solid #000; height: 25px; 
-            background: #ddd; position: relative; margin: 10px 0; 
-            overflow: hidden; 
-            box-shadow: inset 2px 2px 0 rgba(0,0,0,0.2);
-        }
-        .xp-fill { 
-            background: var(--xp-bar); height: 100%; width: 0%; 
-            transition: width 1s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-shadow: 2px 0 0 rgba(0,0,0,0.2);
-        }
-        .xp-text { position: absolute; width: 100%; top: 4px; left: 0; font-size: 0.45rem; font-family: var(--font-pixel); z-index: 2; color: #000;}
-
-        .community-board { 
-            background: var(--power-purple); 
-            background-image: radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px);
-            background-size: 10px 10px;
-            border: 6px solid #000; padding: 1.5rem; margin-top: 2rem; color: white; 
-        }
-        .feedback-post { 
-            background: rgba(0,0,0,0.3); border: 2px dashed #fff; 
-            padding: 1rem; margin-bottom: 1rem; font-size: 1.1rem; 
-        }
-
-        .leaderboard-table {
-            width: 100%; border-collapse: collapse;
-            font-family: var(--font-pixel); font-size: 0.6rem;
-            margin-top: 1rem; background: rgba(0,0,0,0.2);
-            color: white;
-        }
-        .leaderboard-table th, .leaderboard-table td {
-            padding: 12px; text-align: left; border: 2px solid #000;
-        }
-        .leaderboard-table th { background: var(--mario-blue); }
-        .leaderboard-table tr:nth-child(even) { background: rgba(255,255,255,0.1); }
-
-        .calc-container { background: #fff; border: 6px solid #000; padding: 1.5rem; color: #000; }
-        .bin-selector { display: flex; justify-content: space-around; gap: 10px; margin-bottom: 1.5rem; }
-        .bin-option { 
-            flex: 1; border: 4px solid #000; padding: 10px; text-align: center;
-            cursor: pointer; transition: all 0.2s; background: #eee;
-        }
-        .bin-option.selected { background: var(--coin-gold); transform: translateY(-5px); box-shadow: 4px 4px 0 #000; }
-        .bin-option svg { width: 40px; height: 40px; margin-bottom: 5px; }
+        .card-grid { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; padding-bottom: 2rem;}
+        .pixel-card { background: #fff; color: #000; border: 4px solid #000; padding: 1.2rem; text-align: center; box-shadow: 8px 8px 0 rgba(0,0,0,0.3); }
 
         .auth-container { background: #fff; border: 6px solid #000; padding: 1.5rem; color: #000; }
         .form-group { margin-bottom: 1rem; text-align: left; }
-        .form-group label { display: block; font-size: 0.55rem; font-family: var(--font-pixel); margin-bottom: 8px; }
-        
-        input { 
-            width: 100%; padding: 10px; border: var(--border-width) solid #000; 
-            font-family: var(--font-retro); font-size: 1.4rem; 
-        }
+        .form-group label { display: block; font-size: 0.5rem; font-family: var(--font-pixel); margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; border: 4px solid #000; font-family: var(--font-retro); font-size: 1.2rem; }
 
-        footer { 
-            text-align: center; padding: 2rem 1rem; background: #000; color: var(--grey-400); font-size: 0.7rem; 
-            border-top: var(--border-width) solid;
-            border-image: linear-gradient(to right, var(--mario-red), var(--coin-gold), var(--luigi-green)) 1;
-        }
+        footer { text-align: center; padding: 1.5rem; background: #000; color: #888; font-size: 0.6rem; }
         
         .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px;
-            backdrop-filter: blur(4px);
         }
         .modal-overlay.active { display: flex; }
-        .modal-box { 
-            background: white; border: var(--border-thick) solid var(--mario-red); 
-            outline: 4px solid #000;
-            padding: 1.5rem; width: 100%; max-width: 400px; color: #000; 
-        }
-
-        #toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: #333; color: white; padding: 10px 20px; border: 4px solid white;
-            font-family: var(--font-pixel); font-size: 0.6rem; z-index: 3000;
-            transition: transform 0.3s ease-out;
-        }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid var(--grey-800);
-            border-top: 4px solid var(--coin-gold);
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        #back-to-top {
-            position: fixed; bottom: 20px; right: 20px; width: 40px; height: 40px;
-            background: var(--mario-blue); color: white; border: 4px solid #000;
-            display: none; align-items: center; justify-content: center;
-            font-size: 1rem; z-index: 100;
-        }
-
-        @media (max-width: 480px) {
-            .app-shell { border: none; }
-            .view { padding: 0.8rem; }
-            .nav-buttons { grid-template-columns: 1fr 1fr; }
-        }
+        .modal-box { background: white; border: 8px solid var(--mario-red); padding: 1.5rem; width: 100%; color: #000; }
     </style>
-
 </head>
 <body>
 
     <div class="app-shell">
-        
         <nav>
-            <div class="logo-text pixel-font" onclick="switchView('home')" role="button">PIXEL BIN HEROES</div>
+            <div class="logo-text pixel-font" onclick="switchView('home')">PIXEL BIN HEROES</div>
             <div class="nav-buttons">
-                <div class="nav-row">
-                    <button class="btn" onclick="switchView('home')">MAP</button>
-                    <button class="btn btn-blue" onclick="switchView('leaderboard')">RANKS</button>
-                </div>
-                <div class="nav-row">
-                    <button class="btn btn-purple" onclick="switchView('journal')">JOURNAL</button>
-                    <button class="btn btn-green" onclick="switchView('calculator')">CALC</button>
-                </div>
-                <div class="nav-row" style="grid-column: span 2;">
-                    <button class="btn" onclick="switchView('register')" style="background:var(--luigi-green); color:white;">JOIN SQUAD</button>
-                    <button class="btn" onclick="switchView('faq')" style="background:#444; color:white;">FAQ</button>
-                </div>
+                <button class="btn" onclick="switchView('home')">MAP</button>
+                <button class="btn" onclick="switchView('leaderboard')" style="background:var(--mario-blue); color:white;">RANKS</button>
+                <button class="btn" onclick="switchView('register')" style="background:var(--luigi-green); color:white;">JOIN</button>
             </div>
         </nav>
 
         <main>
             <!-- HOME -->
             <section id="home-view" class="view active">
-                <header class="hero-banner">
-                    <h1>LEVEL UP YOUR BINS!</h1>
-                    <div style="color:var(--coin-gold); font-size:0.6rem; margin-bottom:10px;" class="pixel-font">WORLD 1-1: THE BIN DIRT KING ATTACKS!</div>
-                    <div class="pixel-art">
-                        <!-- High-Res Hero SVG (1000x1000) -->
-                        <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                            <defs>
-                                <linearGradient id="heroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#E52521;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#990000;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            <!-- Hero Body -->
-                            <rect x="300" y="200" width="400" height="600" fill="url(#heroGrad)" stroke="#000" stroke-width="20" />
-                            <!-- Helmet -->
-                            <rect x="350" y="100" width="300" height="200" fill="#444" stroke="#000" stroke-width="20" />
-                            <rect x="400" y="150" width="200" height="50" fill="var(--neon-blue)" />
-                            <!-- Pressure Washer Gear -->
-                            <rect x="200" y="400" width="100" height="400" fill="#777" stroke="#000" stroke-width="10" />
-                            <path d="M300 500 Q 150 500 150 400" fill="none" stroke="#000" stroke-width="15" />
-                            <!-- Water Spray (Animated) -->
-                            <path id="water-spray" d="M150 400 L 50 450 L 150 500 Z" fill="var(--neon-blue)" opacity="0.8">
-                                <animate attributeName="opacity" values="0.8;0.2;0.8" dur="0.5s" repeatCount="indefinite" />
-                            </path>
-                            <!-- Utility Belt -->
-                            <rect x="300" y="600" width="400" height="600" fill="none" stroke="none" />
-                            <rect x="300" y="550" width="400" height="60" fill="#000" />
-                            <rect x="450" y="550" width="100" height="60" fill="var(--coin-gold)" />
-                        </svg>
-                    </div>
-                    <p style="color:white; font-size:1.1rem; line-height:1.4;">ST. JOHN'S & MOUNT PEARL ARE UNDER SIEGE BY GRIME! DEPLOY LOCAL HEROES TO RESTORE DRIVEWAY HP!</p>
-                </header>
-
-                <h2 class="pixel-font" style="font-size: 0.6rem; color: white; margin-bottom: 5px;">WORLD MAP 1-1</h2>
-                <div id="map-container" style="position:relative;">
-                    <div id="map-loader" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; flex-direction:column; align-items:center; justify-content:center; color:white;">
-                        <div class="spinner"></div>
-                        <div class="pixel-font" style="font-size:0.5rem;">LOADING ASSETS...</div>
-                    </div>
-                    <div id="map"></div>
-                </div>
-
-                <div style="margin-bottom: 1.5rem;">
-                    <div class="form-group">
-                        <label>SEARCH HEROES</label>
-                        <input type="text" id="hero-search" placeholder="Enter name or neighborhood..." oninput="filterHeroes()">
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <div style="flex:1">
-                            <label class="pixel-font" style="font-size:0.4rem; color:white; display:block; margin-bottom:5px;">NEIGHBORHOOD</label>
-                            <select id="filter-neighborhood" onchange="filterHeroes()" style="width:100%; padding:5px; font-family:var(--font-retro); border:2px solid #000;">
-                                <option value="">ALL STAGES</option>
-                                <option value="Cowan Heights">COWAN HEIGHTS</option>
-                                <option value="Pearlview">PEARLVIEW</option>
-                                <option value="Rabbittown">RABBITTOWN</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <h2 class="pixel-font" style="font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; color: white;">SELECT YOUR HERO</h2>
+                <div id="map"></div>
+                <h2 class="pixel-font" style="font-size: 0.6rem; text-align: center; margin-bottom: 1rem; color: white;">REAL-TIME HEROES</h2>
                 <div id="profiles-container" class="card-grid"></div>
             </section>
 
             <!-- LEADERBOARD -->
             <section id="leaderboard-view" class="view">
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1.5rem;">GLOBAL LEADERBOARD</h2>
-                <div class="auth-container" style="background:var(--grey-800); border-color:var(--coin-gold);">
-                    <div class="pixel-font" style="color:var(--coin-gold); font-size:0.5rem; margin-bottom:15px; text-align:center;">TOP GUILDS RANKING</div>
-                    <table class="leaderboard-table" id="leaderboard-table">
-                        <thead>
-                            <tr>
-                                <th>RANK</th>
-                                <th>GUILD</th>
-                                <th>XP</th>
-                                <th>MISSIONS</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-body">
-                            <!-- Dynamic content -->
-                        </tbody>
-                    </table>
-                </div>
-                <div style="margin-top:20px; color:white;">
-                    <h3 class="pixel-font" style="font-size:0.6rem;">MVP HEROES</h3>
-                    <div id="mvp-container" style="margin-top:10px;"></div>
-                </div>
-            </section>
-
-            <!-- MISSION JOURNAL -->
-            <section id="journal-view" class="view">
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1.5rem;">MISSION JOURNAL</h2>
-                <div id="journal-container">
-                    <!-- Dynamic mission log -->
-                </div>
-                <button class="btn" onclick="clearJournal()" style="background:var(--mario-red); color:white; margin-top:20px;">WIPE DATA</button>
-            </section>
-
-            <!-- SERVICE CALCULATOR -->
-            <section id="calculator-view" class="view">
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1.5rem;">SERVICE CALCULATOR</h2>
-                <div class="calc-container">
-                    <div class="pixel-font" style="font-size:0.5rem; margin-bottom:15px;">SELECT YOUR ARSENAL:</div>
-                    <div class="bin-selector">
-                        <div class="bin-option" id="bin-garbage" onclick="toggleBin('garbage')">
-                            <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="70" fill="#333" stroke="#000" stroke-width="4"/><rect x="15" y="10" width="70" height="10" fill="#333" stroke="#000" stroke-width="4"/></svg>
-                            <div class="pixel-font" style="font-size:0.4rem;">GARBAGE</div>
-                        </div>
-                        <div class="bin-option" id="bin-recycle" onclick="toggleBin('recycle')">
-                            <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="70" fill="var(--mario-blue)" stroke="#000" stroke-width="4"/><path d="M40 40 L 60 50 L 40 60 Z" fill="white"/></svg>
-                            <div class="pixel-font" style="font-size:0.4rem;">RECYCLE</div>
-                        </div>
-                        <div class="bin-option" id="bin-compost" onclick="toggleBin('compost')">
-                            <svg viewBox="0 0 100 100"><rect x="20" y="20" width="60" height="70" fill="var(--luigi-green)" stroke="#000" stroke-width="4"/><rect x="25" y="30" width="50" height="10" fill="#5c4033"/></svg>
-                            <div class="pixel-font" style="font-size:0.4rem;">COMPOST</div>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>QUANTITY (TOTAL BINS)</label>
-                        <input type="number" id="calc-qty" value="1" min="1" oninput="updateCalculation()">
-                    </div>
-                    <div class="form-group">
-                        <label>SERVICE LEVEL</label>
-                        <select id="calc-level" onchange="updateCalculation()" style="width:100%; padding:10px; font-family:var(--font-retro); border:4px solid #000;">
-                            <option value="standard">STANDARD CLEAN (HP +20)</option>
-                            <option value="deep">DEEP SANITIZE (HP +50)</option>
-                        </select>
-                    </div>
-                    <div style="background:#000; color:var(--neon-green); padding:15px; text-align:center; border:4px solid var(--neon-green);">
-                        <div class="pixel-font" style="font-size:0.5rem; margin-bottom:5px;">ESTIMATED TOTAL:</div>
-                        <div id="calc-total" class="pixel-font" style="font-size:1.2rem;">$20.00</div>
-                    </div>
-                    <button class="btn btn-green" style="margin-top:20px;" onclick="switchView('home')">FIND HERO FOR THIS QUOTE</button>
-                </div>
-            </section>
-
-            <!-- FAQ -->
-            <section id="faq-view" class="view">
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1.5rem;">HOW TO PLAY (FAQ)</h2>
-                <div class="auth-container">
-                    <div class="feedback-post">
-                        <h3 class="pixel-font" style="font-size:0.5rem;">Q: HOW DO I EARN COINS?</h3>
-                        <p>A: Complete missions by cleaning neighborhood bins. Higher ratings mean more gold!</p>
-                    </div>
-                    <div class="feedback-post">
-                        <h3 class="pixel-font" style="font-size:0.5rem;">Q: WHAT IS DRIVEWAY HP?</h3>
-                        <p>A: It stands for Hygiene Points. Low HP leads to the Bin Dirt King's arrival!</p>
-                    </div>
-                    <div class="feedback-post">
-                        <h3 class="pixel-font" style="font-size:0.5rem;">Q: ARE THE HEROES REAL?</h3>
-                        <p>A: Yes! They are local students and neighbors restoring order to the streets.</p>
-                    </div>
-                </div>
+                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">LEADERBOARD</h2>
+                <div id="leaderboard-container" class="card-grid"></div>
             </section>
 
             <!-- REGISTER -->
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem; font-size:0.9rem;">JOIN THE SQUAD</h2>
+            <section id="register-view" class="view">
+                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">JOIN WORLD</h2>
                 <div class="auth-container">
-                    <!-- 106. Change "Sign Up" to "Player 2 Press Start" (in nav) -->
                     <form id="signup-form">
-                        <!-- 101. Form placeholder: Enter your 8-bit alias -->
-                        <div class="form-group"><label>HERO ALIAS</label><input type="text" id="signup-name" placeholder="e.g. BinBuster99" required inputmode="text"></div>
-                        <!-- 102. Form placeholder: Choose your guild -->
-                        <div class="form-group"><label>GUILD / TEAM</label><input type="text" id="signup-group" placeholder="e.g. St. John's Scouts" inputmode="text"></div>
-                        <!-- 103. Form placeholder: Target gold amount -->
-                        <div class="form-group"><label>GOLD GOAL ($)</label><input type="number" id="signup-goal" placeholder="500" inputmode="numeric"></div>
-                        <!-- 104. Form placeholder: Your home stage -->
-                        <div class="form-group"><label>HOME STAGE (NEIGHBORHOOD)</label><input type="text" id="signup-neighborhood" placeholder="e.g. Cowan Heights" required inputmode="text"></div>
-                        <!-- 105. Form placeholder: When can you spawn? -->
-                        <div class="form-group"><label>SPAWN TIME (AVAILABILITY)</label><input type="text" id="signup-time" placeholder="e.g. Saturdays 10am" required inputmode="text"></div>
-                        
-                        <!-- 69. Disable submit button while processing (handled in JS) -->
-                        <!-- 107. Change "Submit" to "INSERT COIN" -->
-                        <button type="submit" class="btn btn-green" style="font-size:0.8rem; padding:15px;" id="signup-submit">INSERT COIN</button>
-                        <!-- 81. Add Cancel button to signup -->
-                        <button type="button" class="btn" style="background:#ccc; font-size:0.6rem;" onclick="switchView('home')">ABORT MISSION</button>
+                        <div class="form-group"><label>HERO ALIAS</label><input type="text" id="name" required></div>
+                        <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="neighborhood" required></div>
+                        <div class="form-group"><label>TEAM / GUILD</label><input type="text" id="guild" placeholder="Freelance"></div>
+                        <button type="submit" class="btn" style="background:var(--luigi-green); color:white; padding:15px; font-size:0.6rem;">START MISSION</button>
                     </form>
-                </div>
-                <!-- 98. Neighborhood tips -->
-                <div style="margin-top:20px; color:white; font-size:0.9rem; border:2px dashed white; padding:10px;">
-                    <div class="pixel-font" style="font-size:0.5rem; margin-bottom:10px;">SAFETY TIPS:</div>
-                    <p id="safety-tip">Loading tip...</p>
                 </div>
             </section>
         </main>
 
         <footer>
-            <!-- 115. Terms link text: Read the Manual (TOS) -->
-            <p><a href="terms-conditions.html" style="color:var(--coin-gold);">READ THE MANUAL (TOS)</a> | 2026 PIXEL BIN HEROES</p>
-            <!-- 114. Footer text: Not affiliated with Nintendo -->
-            <p style="font-size:0.5rem; margin-top:10px;">NOT AFFILIATED WITH NINTENDO. PLEASE DON'T SUE.</p>
+            <p>2026 PIXEL BIN HEROES | SHARED WORLD ONLINE</p>
         </footer>
 
-        <!-- 87. Accessibility: ARIA roles for modal -->
-        <div id="booking-modal" class="modal-overlay" role="dialog" aria-labelledby="modal-title">
+        <div id="booking-modal" class="modal-overlay">
             <div class="modal-box">
-                <!-- 110. Booking title: Initiate Quest? -->
-                <h2 id="modal-title" class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem;">INITIATE QUEST?</h2>
+                <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem;">HIRE HERO</h2>
                 <p id="booking-info" style="margin-bottom: 1.5rem; font-size: 1.2rem;"></p>
-                <!-- 80. Display estimated cost (handled in JS) -->
-                <div id="booking-cost" style="margin-bottom: 1.5rem; font-family:var(--font-pixel); font-size:0.6rem; color:var(--mario-blue);"></div>
-                <button class="btn btn-green" onclick="confirmBooking()">DEPLOY HERO</button>
+                <button class="btn" style="background:var(--luigi-green); color:white;" onclick="confirmMission()">DEPLOY HERO</button>
                 <button class="btn" style="background:#ccc;" onclick="closeModal()">CANCEL</button>
             </div>
         </div>
-
-        <!-- 58. Toast notification -->
-        <div id="toast">MISSION UPDATE!</div>
-
-        <!-- 76. Back to top button -->
-        <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" aria-label="Back to top">↑</button>
     </div>
 
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        /**
-         * 135. StorageManager: Handles LocalStorage persistence
-         */
-        const StorageManager = {
-            SAVE_KEY: 'pixel_bin_heroes_data_v2',
-            JOURNAL_KEY: 'pixel_bin_heroes_journal',
-            save(data) { localStorage.setItem(this.SAVE_KEY, JSON.stringify(data)); },
-            load() {
-                const data = localStorage.getItem(this.SAVE_KEY);
-                return data ? JSON.parse(data) : null;
-            },
-            saveMission(mission) {
-                const journal = this.loadJournal();
-                journal.unshift(mission);
-                localStorage.setItem(this.JOURNAL_KEY, JSON.stringify(journal.slice(0, 50)));
-            },
-            loadJournal() {
-                const data = localStorage.getItem(this.JOURNAL_KEY);
-                return data ? JSON.parse(data) : [];
-            },
-            clearJournal() { localStorage.removeItem(this.JOURNAL_KEY); }
-        };
+        // --- REAL SHARED DATABASE (npoint.io bridge) ---
+        const DB_ID = 'e9036f0605a9607f287f';
+        const DB_URL = `https://api.npoint.io/${DB_ID}`;
 
-        /**
-         * 132. HeroManager: Manages hero data and logic
-         */
-        const HeroManager = {
-            heroes: [
-                { id: 1, nickname: "Bin-Buster Pete", group: "Scouts", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14, xp: 1250, lat: 47.535, lng: -52.762, backstory: "A former speedrunner turned sanitation expert.", lastActive: "2 mins ago", history: ["Cowan Hts - 10:00 AM"] },
-                { id: 2, nickname: "Retro Riley", group: "Soccer Club", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9, xp: 840, lat: 47.518, lng: -52.805, backstory: "Uses blast processing to clean bins faster.", lastActive: "15 mins ago", history: ["Pearlview - 8:30 AM"] },
-                { id: 3, nickname: "Sanitary Sam", group: "Scouts", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6, xp: 420, lat: 47.569, lng: -52.718, backstory: "Equipped with the legendary Golden Sponge.", lastActive: "Just now", history: ["Rabbittown - 10:45 AM"] }
-            ],
-            addHero(hero) {
-                this.heroes.push(hero);
-                StorageManager.save(this.heroes);
-            },
-            completeMission(heroId, missionData) {
-                const hero = this.heroes.find(h => h.id === heroId);
-                if (hero) {
-                    hero.xp += missionData.xp;
-                    hero.reviews += 1;
-                    hero.lastActive = "Just now";
-                    hero.history.unshift(`${hero.neighborhood} - ${new Date().toLocaleTimeString()}`);
-                    StorageManager.save(this.heroes);
-                    StorageManager.saveMission({
-                        heroName: hero.nickname,
-                        neighborhood: hero.neighborhood,
-                        xp: missionData.xp,
-                        timestamp: new Date().toISOString()
-                    });
-                }
-            }
-        };
+        let map, heroes = [], currentHeroId = null;
 
-        /**
-         * 133. MapManager: Handles Leaflet map operations
-         */
-        const MapManager = {
-            map: null,
-            init() {
-                try {
-                    this.map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(this.map);
-                    this.updateMarkers();
-                    document.getElementById('map-loader').style.display = 'none';
-                } catch (e) {
-                    document.getElementById('map-loader').innerHTML = "<p class='pixel-font'>MAP GLITCH!</p>";
-                }
-            },
-            updateMarkers(filteredHeroes = null) {
-                const list = filteredHeroes || HeroManager.heroes;
-                this.map.eachLayer(layer => { if(layer instanceof L.Marker) this.map.removeLayer(layer); });
-                list.forEach(h => {
-                    L.marker([h.lat, h.lng]).addTo(this.map)
-                        .bindPopup(`
-                            <div class="pixel-font" style="font-size:0.5rem;">${h.nickname}</div>
-                            <button class="btn btn-green" onclick="UIManager.openBooking(${h.id})" style="font-size:0.4rem; padding:5px; margin-top:5px;">HIRE</button>
-                        `);
-                });
-            },
-            invalidate() { if(this.map) setTimeout(() => this.map.invalidateSize(), 200); }
-        };
+        async function initApp() {
+            initMap();
+            await fetchWorldData();
+        }
 
-        /**
-         * 134. UIManager: Handles UI updates and interactions
-         */
-        const UIManager = {
-            selectedBins: new Set(),
-            currentHeroId: null,
-            init() {
-                const saved = StorageManager.load();
-                if (saved) HeroManager.heroes = saved;
-                this.renderProfiles();
-                this.renderLeaderboard();
-                this.renderJournal();
-                this.setupEventListeners();
-            },
-            setupEventListeners() {
-                window.addEventListener('scroll', () => {
-                    document.getElementById('back-to-top').style.display = window.scrollY > 300 ? 'flex' : 'none';
-                });
-            },
-            switchView(viewId) {
-                document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-                const activeView = document.getElementById(viewId + '-view');
-                if (activeView) {
-                    activeView.classList.add('active');
-                    if(viewId === 'home') MapManager.invalidate();
-                    if(viewId === 'leaderboard') this.renderLeaderboard();
-                    if(viewId === 'journal') this.renderJournal();
-                    window.scrollTo(0, 0);
-                }
-            },
-            renderProfiles(filteredHeroes = null) {
-                const container = document.getElementById('profiles-container');
-                const list = filteredHeroes || HeroManager.heroes;
-                container.innerHTML = '';
+        async function fetchWorldData() {
+            try {
+                const response = await fetch(DB_URL);
+                const data = await response.json();
+                heroes = data.heroes || [];
+                renderWorld();
+            } catch (e) { console.error("Sync Error", e); }
+        }
+
+        async function saveWorldData() {
+            await fetch(DB_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ heroes })
+            });
+            renderWorld();
+        }
+
+        function initMap() {
+            map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        }
+
+        function renderWorld() {
+            const container = document.getElementById('profiles-container');
+            const lbContainer = document.getElementById('leaderboard-container');
+            container.innerHTML = '';
+            if(lbContainer) lbContainer.innerHTML = '';
+
+            map.eachLayer(l => { if(l instanceof L.Marker) map.removeLayer(l); });
+
+            heroes.sort((a,b) => b.xp - a.xp).forEach(h => {
+                // Map
+                L.marker([h.lat, h.lng]).addTo(map).bindPopup(`<b>${h.nickname}</b><br><button onclick="openBooking('${h.id}')" style="cursor:pointer">Hire</button>`);
                 
-                if (list.length === 0) {
-                    container.innerHTML = `<div class="pixel-font" style="text-align:center; color:white; padding:20px;">NO HEROES IN THIS ZONE!</div>`;
-                    return;
-                }
-
-                list.forEach((h, index) => {
-                    const card = document.createElement('article');
-                    card.className = 'pixel-card';
-                    card.innerHTML = `
-                        <div class="active-badge"><div class="active-dot"></div> ACTIVE: ${h.lastActive}</div>
-                        <div class="avatar-box">
-                            <!-- High-Res Green Bin SVG (1000x1000) -->
-                            <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="200" y="200" width="600" height="700" fill="var(--luigi-green)" stroke="#000" stroke-width="20"/>
-                                <rect x="150" y="150" width="700" height="100" fill="#222"/>
-                                <rect x="250" y="300" width="500" height="40" fill="rgba(255,255,255,0.2)"/>
-                            </svg>
-                        </div>
-                        <h3 class="pixel-font" style="font-size:0.7rem; margin-bottom:5px;">${h.nickname}</h3>
-                        <div style="background:#000; color:#fff; padding:8px; font-size:0.9rem; margin-bottom:15px;">📍 ${h.neighborhood}</div>
-                        <div class="xp-container">
-                            <div class="xp-fill" style="width: ${(h.xp % 1000) / 10}%"></div>
-                            <div class="xp-text">XP: ${h.xp} (LVL ${Math.floor(h.xp/1000) + 1})</div>
-                        </div>
-                        <button class="btn btn-green" onclick="UIManager.openBooking(${h.id})">HIRE HERO</button>
-                    `;
-                    container.appendChild(card);
-                });
-            },
-            renderLeaderboard() {
-                const guilds = {};
-                HeroManager.heroes.forEach(h => {
-                    if (!guilds[h.group]) guilds[h.group] = { xp: 0, missions: 0 };
-                    guilds[h.group].xp += h.xp;
-                    guilds[h.group].missions += h.reviews;
-                });
-
-                const sorted = Object.entries(guilds).sort((a, b) => b[1].xp - a[1].xp);
-                const body = document.getElementById('leaderboard-body');
-                body.innerHTML = sorted.map(([name, data], i) => `
-                    <tr>
-                        <td>#${i + 1}</td>
-                        <td>${name}</td>
-                        <td style="color:var(--neon-green)">${data.xp}</td>
-                        <td>${data.missions}</td>
-                    </tr>
-                `).join('');
-
-                const mvps = [...HeroManager.heroes].sort((a, b) => b.xp - a.xp).slice(0, 3);
-                document.getElementById('mvp-container').innerHTML = mvps.map((h, i) => `
-                    <div class="pixel-card" style="margin-bottom:10px; padding:10px; display:flex; align-items:center; gap:15px;">
-                        <div class="pixel-font" style="font-size:1.2rem; color:var(--coin-gold);">#${i+1}</div>
-                        <div style="text-align:left;">
-                            <div class="pixel-font" style="font-size:0.5rem;">${h.nickname}</div>
-                            <div style="font-size:0.8rem;">${h.group} | ${h.xp} XP</div>
-                        </div>
-                    </div>
-                `).join('');
-            },
-            renderJournal() {
-                const journal = StorageManager.loadJournal();
-                const container = document.getElementById('journal-container');
-                if (journal.length === 0) {
-                    container.innerHTML = `<div class="pixel-font" style="color:white; text-align:center;">NO MISSIONS RECORDED.</div>`;
-                    return;
-                }
-                container.innerHTML = journal.map(m => `
-                    <div class="feedback-post" style="color:white; font-size:0.8rem;">
-                        <span style="color:var(--coin-gold); font-family:var(--font-pixel); font-size:0.4rem;">[${new Date(m.timestamp).toLocaleDateString()}]</span>
-                        Hero <b>${m.heroName}</b> restored HP in <b>${m.neighborhood}</b>! 
-                        <span style="color:var(--neon-green)">+${m.xp} XP</span>
-                    </div>
-                `).join('');
-            },
-            openBooking(id) {
-                this.currentHeroId = id;
-                const hero = HeroManager.heroes.find(h => h.id === id);
-                document.getElementById('modal-title').innerText = `INITIATE QUEST?`;
-                document.getElementById('booking-info').innerText = `DEPLOY ${hero.nickname.toUpperCase()} TO ${hero.neighborhood.toUpperCase()}?`;
-                document.getElementById('booking-cost').innerText = `ESTIMATED XP GAIN: +150 XP`;
-                document.getElementById('booking-modal').classList.add('active');
-            },
-            confirmBooking() {
-                HeroManager.completeMission(this.currentHeroId, { xp: 150 });
-                this.showToast("MISSION ACCEPTED! BINS CLEARED.");
-                document.getElementById('booking-modal').classList.remove('active');
-                this.renderProfiles();
-            },
-            showToast(message) {
-                const toast = document.getElementById('toast');
-                toast.innerText = message;
-                toast.classList.add('show');
-                setTimeout(() => toast.classList.remove('show'), 3000);
-            }
-        };
-
-        /**
-         * Calculator Logic
-         */
-        function toggleBin(type) {
-            const el = document.getElementById('bin-' + type);
-            if (UIManager.selectedBins.has(type)) {
-                UIManager.selectedBins.delete(type);
-                el.classList.remove('selected');
-            } else {
-                UIManager.selectedBins.add(type);
-                el.classList.add('selected');
-            }
-            updateCalculation();
+                // Cards
+                const card = document.createElement('div');
+                card.className = 'pixel-card';
+                card.innerHTML = `
+                    <div style="font-family:var(--font-pixel); font-size:0.4rem; color:var(--power-purple); margin-bottom:5px;">LVL ${Math.floor(h.xp/1000)+1} HERO</div>
+                    <div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.nickname}</div>
+                    <div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:5px 0;">📍 ${h.neighborhood}</div>
+                    <div style="color:var(--coin-gold); font-size:0.9rem;">XP: ${h.xp}</div>
+                    <button class="btn" style="background:var(--luigi-green); color:white; margin-top:10px;" onclick="openBooking('${h.id}')">HIRE HERO</button>
+                `;
+                container.appendChild(card);
+            });
         }
 
-        function updateCalculation() {
-            const qty = parseInt(document.getElementById('calc-qty').value) || 0;
-            const level = document.getElementById('calc-level').value;
-            let base = UIManager.selectedBins.size * 10 * qty;
-            if (level === 'deep') base *= 1.5;
-            if (UIManager.selectedBins.size === 3) base *= 0.8; // Bundle discount
-            document.getElementById('calc-total').innerText = `$${base.toFixed(2)}`;
+        function switchView(id) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.getElementById(id + '-view').classList.add('active');
+            if(id === 'home' && map) setTimeout(() => map.invalidateSize(), 200);
         }
 
-        function filterHeroes() {
-            const query = document.getElementById('hero-search').value.toLowerCase();
-            const neighborhood = document.getElementById('filter-neighborhood').value;
-            const filtered = HeroManager.heroes.filter(h => 
-                (h.nickname.toLowerCase().includes(query) || h.neighborhood.toLowerCase().includes(query)) &&
-                (neighborhood === "" || h.neighborhood === neighborhood)
-            );
-            UIManager.renderProfiles(filtered);
-            MapManager.updateMarkers(filtered);
+        function openBooking(id) {
+            currentHeroId = id;
+            const hero = heroes.find(h => h.id == id);
+            document.getElementById('booking-info').innerText = `DEPLOY ${hero.nickname.toUpperCase()}?`;
+            document.getElementById('booking-modal').classList.add('active');
         }
 
-        function switchView(id) { UIManager.switchView(id); }
         function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
-        function confirmBooking() { UIManager.confirmBooking(); }
-        function clearJournal() { StorageManager.clearJournal(); UIManager.renderJournal(); }
 
-        document.getElementById('signup-form').addEventListener('submit', (e) => {
+        async function confirmMission() {
+            const hero = heroes.find(h => h.id == currentHeroId);
+            if(hero) {
+                hero.xp += 150;
+                await saveWorldData();
+                alert("MISSION DEPLOYED! XP GRANTED.");
+                closeModal();
+            }
+        }
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('signup-name').value;
             const newHero = {
                 id: Date.now(),
-                nickname: name,
-                neighborhood: document.getElementById('signup-neighborhood').value,
-                group: document.getElementById('signup-group').value || "Freelance",
-                avatar: "👾",
-                rating: 5,
-                reviews: 0,
+                nickname: document.getElementById('name').value,
+                neighborhood: document.getElementById('neighborhood').value,
+                guild: document.getElementById('guild').value || "Freelance",
                 xp: 0,
-                lastActive: "Just now",
-                history: [],
                 lat: 47.54 + (Math.random()*0.06-0.03),
                 lng: -52.75 + (Math.random()*0.06-0.03)
             };
-            HeroManager.addHero(newHero);
-            UIManager.renderProfiles();
-            UIManager.showToast("HERO UNLOCKED!");
-            UIManager.switchView('home');
-            e.target.reset();
+            heroes.push(newHero);
+            await saveWorldData();
+            alert("HERO CREATED! WELCOME TO THE WORLD.");
+            switchView('home');
         });
 
-        window.onload = () => {
-            MapManager.init();
-            UIManager.init();
-        };
+        window.onload = initApp;
     </script>
 </body>
 </html>
