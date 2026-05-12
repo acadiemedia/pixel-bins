@@ -205,12 +205,18 @@
         }
 
         async function syncWorld() {
-            await fetch(DB_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(worldData)
-            });
-            renderWorld();
+            try {
+                const response = await fetch(DB_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(worldData)
+                });
+                if(!response.ok) throw new Error("Sync Failed");
+                renderWorld();
+            } catch (e) {
+                console.error("Cloud Error", e);
+                alert("NETWORK GLITCH! Profile saved locally but cloud sync failed. Try refreshing.");
+            }
         }
 
         function initMap() {
@@ -298,27 +304,33 @@
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const submitBtn = e.target.querySelector('button');
+            const originalText = submitBtn.innerText;
             submitBtn.innerText = "PUBLISHING...";
             submitBtn.disabled = true;
 
-            const newHero = {
-                id: Date.now(),
-                name: document.getElementById('reg-name').value,
-                neighborhood: document.getElementById('reg-neighborhood').value,
-                contact: document.getElementById('reg-contact').value,
-                xp: 0,
-                lat: 47.54 + (Math.random()*0.06-0.03),
-                lng: -52.75 + (Math.random()*0.06-0.03)
-            };
-            
-            worldData.heroes.push(newHero);
-            await syncWorld();
-            
-            alert("HERO CREATED! WELCOME TO THE SQUAD.");
-            submitBtn.innerText = "PUBLISH PROFILE";
-            submitBtn.disabled = false;
-            e.target.reset();
-            switchView('home');
+            try {
+                const newHero = {
+                    id: Date.now(),
+                    name: document.getElementById('reg-name').value,
+                    neighborhood: document.getElementById('reg-neighborhood').value,
+                    contact: document.getElementById('reg-contact').value,
+                    xp: 0,
+                    lat: 47.54 + (Math.random()*0.06-0.03),
+                    lng: -52.75 + (Math.random()*0.06-0.03)
+                };
+                
+                worldData.heroes.push(newHero);
+                await syncWorld();
+                
+                alert("HERO CREATED! WELCOME TO THE SQUAD.");
+                e.target.reset();
+                switchView('home');
+            } catch (err) {
+                alert("GLITCH DETECTED! Could not save hero.");
+            } finally {
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
         });
 
         document.getElementById('feedback-form').addEventListener('submit', async (e) => {
