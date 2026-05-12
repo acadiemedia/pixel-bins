@@ -297,18 +297,27 @@
 
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const submitBtn = e.target.querySelector('button');
+            submitBtn.innerText = "PUBLISHING...";
+            submitBtn.disabled = true;
+
             const newHero = {
                 id: Date.now(),
                 name: document.getElementById('reg-name').value,
                 neighborhood: document.getElementById('reg-neighborhood').value,
-                contact: document.getElementById('reg-contact').value, // This is the secret email
+                contact: document.getElementById('reg-contact').value,
                 xp: 0,
                 lat: 47.54 + (Math.random()*0.06-0.03),
                 lng: -52.75 + (Math.random()*0.06-0.03)
             };
+            
             worldData.heroes.push(newHero);
             await syncWorld();
-            alert("HERO CREATED! Your identity is protected.");
+            
+            alert("HERO CREATED! WELCOME TO THE SQUAD.");
+            submitBtn.innerText = "PUBLISH PROFILE";
+            submitBtn.disabled = false;
+            e.target.reset();
             switchView('home');
         });
 
