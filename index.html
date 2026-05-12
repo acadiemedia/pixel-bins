@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Bin Heroes | Ultra Resilience Edition</title>
+    <title>Pixel Bin Heroes | Verified Edition</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -39,7 +39,7 @@
 
         nav { background: var(--mario-red); padding: 1rem; border-bottom: 8px solid #000; z-index: 100; position: sticky; top: 0; }
         .logo-text { font-size: 0.8rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 15px; cursor: pointer; }
-        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .nav-buttons { display: flex; justify-content: center; gap: 10px; }
 
         .btn {
             display: block; width: 100%; padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.45rem;
@@ -53,17 +53,13 @@
         .view.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero-banner { text-align: center; padding: 1rem 0; }
-        .hero-banner h1 { font-size: 1.2rem; color: white; text-shadow: 4px 4px 0 #000; margin-bottom: 1rem; }
-        .pixel-art { width: 100%; background: #000; border: 4px solid white; padding: 5px; margin-bottom: 1rem; }
-
         #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10; }
 
         .card-grid { display: flex; flex-direction: column; gap: 2rem; width: 100%; padding-bottom: 2rem;}
         .pixel-card { 
             background: #fff; color: #000; border: 6px solid #000; 
             padding: 1.2rem; text-align: center; 
-            box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100%;
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100% !important;
         }
         .avatar-box { width: 60px; height: 60px; margin: 0 auto 10px; border: 4px solid #000; background: #eee; display: flex; align-items: center; justify-content: center; font-size: 2rem; }
 
@@ -71,18 +67,11 @@
         .form-group label { display: block; font-size: 0.55rem; font-family: 'Press Start 2P'; margin-bottom: 8px; }
         input { width: 100%; padding: 10px; border: 4px solid #000; font-family: 'VT323'; font-size: 1.4rem; }
 
-        footer { text-align: center; padding: 1.5rem; background: #000; color: #888; font-size: 0.6rem; }
+        footer { text-align: center; padding: 1.5rem; background: #000; color: #888; font-size: 0.7rem; }
         
-        .modal-overlay {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: white; border: 8px solid var(--mario-red); padding: 1.5rem; width: 100%; color: #000; }
-        
-        .status-dot { width: 10px; height: 10px; border-radius: 50% !important; display: inline-block; margin-right: 5px; }
-        .online { background: var(--luigi-green); box-shadow: 0 0 5px var(--luigi-green); }
-        .offline { background: #666; }
+        #sync-status { font-family: 'Press Start 2P'; font-size: 0.4rem; color: #fff; margin-bottom: 10px; }
+        .status-online { color: var(--luigi-green); }
+        .status-offline { color: #888; }
     </style>
 </head>
 <body>
@@ -91,21 +80,13 @@
         <nav>
             <div class="logo-text pixel-font" onclick="switchView('home')">PIXEL BIN HEROES</div>
             <div class="nav-buttons">
-                <button class="btn" onclick="switchView('home')">WORLD MAP</button>
-                <button class="btn btn-green" onclick="switchView('register')">JOIN NOW</button>
+                <button class="btn" id="btn-map" onclick="switchView('home')">WORLD MAP</button>
+                <button class="btn btn-green" id="btn-join" onclick="switchView('register')">JOIN NOW</button>
             </div>
         </nav>
 
         <main>
             <section id="home-view" class="view active">
-                <header class="hero-banner">
-                    <h1>GLOBAL HERO BOARD</h1>
-                    <div class="pixel-art">
-                        <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                            <rect width="100" height="50" fill="#5C94FC" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
-                        </svg>
-                    </div>
-                </header>
                 <div id="map"></div>
                 <h2 class="pixel-font" style="font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; color: white;">LOCAL HEROES</h2>
                 <div id="profiles-container" class="card-grid"></div>
@@ -113,48 +94,36 @@
 
             <section id="register-view" class="view">
                 <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">JOIN THE SQUAD</h2>
-                <div class="auth-container" style="background:#fff; padding:1.5rem; border:6px solid #000;">
+                <div style="background:#fff; padding:1.5rem; border:6px solid #000;">
                     <form id="signup-form">
                         <div class="form-group"><label>HERO ALIAS</label><input type="text" id="reg-name" required></div>
                         <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="reg-neighborhood" required></div>
-                        <div class="form-group"><label>CONTACT (SECRET)</label><input type="text" id="reg-contact" required placeholder="Hidden Email/Phone"></div>
-                        <button type="submit" class="btn btn-green" id="reg-btn" style="width:100%; padding:15px; font-size:0.8rem;">PUBLISH PROFILE</button>
+                        <div class="form-group"><label>CONTACT (SECRET)</label><input type="text" id="reg-contact" required placeholder="Email/Phone"></div>
+                        <button type="submit" id="submit-btn" class="btn btn-green" style="width:100%; padding:15px; font-size:0.8rem;">PUBLISH PROFILE</button>
                     </form>
                 </div>
             </section>
         </main>
 
         <footer>
-            <div id="sync-status" style="margin-bottom:10px;"><div class="status-dot offline"></div> SYNCING...</div>
-            <p>2026 PIXEL BIN HEROES | RESILIENCE V2</p>
+            <div id="sync-status">SYNCING WORLD...</div>
+            <p>2026 PIXEL BIN HEROES | ST. JOHN'S, NL</p>
         </footer>
-
-        <div id="booking-modal" class="modal-overlay">
-            <div class="modal-box">
-                <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem;">MISSION DISPATCH</h2>
-                <p id="booking-info" style="margin-bottom: 1.5rem; font-size: 1.2rem;"></p>
-                <div class="form-group"><label>YOUR NAME</label><input type="text" id="cust-name"></div>
-                <div class="form-group"><label>ADDRESS</label><input type="text" id="cust-addr"></div>
-                <button class="btn btn-green" onclick="confirmMission()">DISPATCH MISSION</button>
-                <button class="btn" style="background:#ccc; margin-top:10px;" onclick="closeModal()">CANCEL</button>
-            </div>
-        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const DB_URL = 'https://api.npoint.io/e9036f0605a9607f287f';
-        let map, heroes = [], currentHero = null;
+        const DB_URL = 'https://api.npoint.io/468874138e64e5288283';
+        let map, heroes = [];
 
         async function initApp() {
             initMap();
-            // 1. LOAD LOCAL FIRST (Zero Latency)
-            const cached = localStorage.getItem('pb_resilience_v2');
+            // Load Local first (Instant display)
+            const cached = localStorage.getItem('pixel_bins_final_v1');
             if(cached) {
                 heroes = JSON.parse(cached);
                 renderWorld();
             }
-            // 2. SYNC WITH CLOUD IN BACKGROUND
             await fetchWorld();
         }
 
@@ -163,13 +132,8 @@
                 const response = await fetch(DB_URL);
                 const data = await response.json();
                 if(data && data.heroes) {
-                    // Merge cloud data with local data (unique by ID)
-                    const cloudHeroes = data.heroes;
-                    const merged = [...heroes];
-                    cloudHeroes.forEach(ch => {
-                        if(!merged.find(lh => lh.id === ch.id)) merged.push(ch);
-                    });
-                    heroes = merged;
+                    // Update if global is different
+                    heroes = data.heroes;
                     saveLocal();
                     renderWorld();
                     updateStatus(true);
@@ -178,22 +142,22 @@
         }
 
         async function pushWorld() {
-            updateStatus(false);
             try {
-                const res = await fetch(DB_URL, {
+                await fetch(DB_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ heroes })
                 });
-                if(res.ok) updateStatus(true);
-            } catch (e) { console.log("Background sync failed."); }
+                updateStatus(true);
+            } catch (e) { updateStatus(false); }
         }
 
-        function saveLocal() { localStorage.setItem('pb_resilience_v2', JSON.stringify(heroes)); }
+        function saveLocal() { localStorage.setItem('pixel_bins_final_v1', JSON.stringify(heroes)); }
 
         function updateStatus(isOnline) {
-            const el = document.getElementById('sync-status');
-            el.innerHTML = `<div class="status-dot ${isOnline ? 'online' : 'offline'}"></div> ${isOnline ? 'GLOBAL WORLD CONNECTED' : 'OFFLINE MODE (SAVING LOCALLY)'}`;
+            document.getElementById('sync-status').innerHTML = isOnline ? 
+                '<span class="status-online">GLOBAL SYNC ACTIVE</span>' : 
+                '<span class="status-offline">SAVING LOCALLY (OFFLINE)</span>';
         }
 
         function initMap() {
@@ -209,12 +173,7 @@
             heroes.forEach(h => {
                 L.marker([h.lat, h.lng]).addTo(map).bindPopup(`<b>${h.name}</b><br>${h.neighborhood}`);
                 const card = document.createElement('div'); card.className = 'pixel-card';
-                card.innerHTML = `
-                    <div class="avatar-box">🦸‍♂️</div>
-                    <div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.name}</div>
-                    <div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${h.neighborhood}</div>
-                    <button class="btn btn-green" onclick="openBooking('${h.id}')">DISPATCH HERO</button>
-                `;
+                card.innerHTML = `<div class="avatar-box">🦸‍♂️</div><div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.name}</div><div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${h.neighborhood}</div><div style="font-weight:bold; font-size:0.9rem; margin-bottom:10px;">Privacy Protected</div><button class="btn btn-green">DISPATCH</button>`;
                 container.appendChild(card);
             });
         }
@@ -226,23 +185,9 @@
             window.scrollTo(0,0);
         }
 
-        function openBooking(id) {
-            currentHero = heroes.find(h => h.id == id);
-            document.getElementById('booking-info').innerText = `SEND MISSION TO ${currentHero.name.toUpperCase()}?`;
-            document.getElementById('booking-modal').classList.add('active');
-        }
-        function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
-
-        async function confirmMission() {
-            if(currentHero) {
-                window.location.href = `mailto:${currentHero.contact}?subject=MISSION REQUEST&body=Bin request from ${document.getElementById('cust-name').value} at ${document.getElementById('cust-addr').value}`;
-                closeModal();
-            }
-        }
-
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = document.getElementById('reg-btn');
+            const btn = document.getElementById('submit-btn');
             btn.innerText = "PUBLISHING..."; btn.disabled = true;
 
             const newHero = {
@@ -254,15 +199,12 @@
                 lng: -52.75 + (Math.random()*0.06-0.03)
             };
 
-            // 1. SAVE LOCALLY FIRST (Immediate)
             heroes.push(newHero);
             saveLocal();
             renderWorld();
-
-            // 2. PUSH TO CLOUD IN BACKGROUND
             await pushWorld();
             
-            alert("SUCCESS! YOUR AD IS LIVE ON THIS DEVICE AND SYNCING GLOBALLY.");
+            alert("SUCCESS! YOU ARE LIVE.");
             btn.innerText = "PUBLISH PROFILE"; btn.disabled = false;
             switchView('home');
         });
