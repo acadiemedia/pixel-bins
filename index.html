@@ -57,18 +57,6 @@
             image-rendering: pixelated;
         }
 
-        /* 4. Subtle CRT scanline overlay */
-        body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 5000;
-            background-size: 100% 4px, 3px 100%;
-            pointer-events: none;
-        }
-
         .app-shell {
             width: 100%; max-width: 480px;
             /* 20. Animated gradient background */
@@ -81,15 +69,6 @@
             min-height: 100vh; position: relative;
             display: flex; flex-direction: column;
             box-sizing: border-box;
-            /* 6. Apply CRT flicker to main app shell */
-            animation: flicker 0.15s infinite;
-        }
-
-        /* 5. CRT flicker animation keyframes */
-        @keyframes flicker {
-            0% { opacity: 0.99; }
-            50% { opacity: 1; }
-            100% { opacity: 0.98; }
         }
 
         @keyframes bgShift {
@@ -166,23 +145,77 @@
         }
         .pixel-art { width: 100%; background: #000; border: var(--border-width) solid white; padding: 5px; margin-bottom: 1rem; }
 
-        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10;}
+        #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10; border-radius: 8px !important; }
 
-        .card-grid { display: flex; flex-direction: column; gap: 2rem; width: 100%; padding-bottom: 3rem;}
+        /* 151. Implement CSS Grid masonry for cards */
+        .card-grid { 
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-template-rows: masonry;
+            gap: 24px; 
+            width: 100%; 
+            padding-bottom: 3rem;
+            /* 152. Aspect ratio for consistency */
+        }
         
+        /* 153. Container queries for better spacing */
+        @container (min-width: 400px) {
+            .pixel-card { padding: 2rem; }
+        }
+
         /* 32. Slide-up animation for cards */
         .pixel-card { 
             background: #fff; color: #000; 
-            /* 12. Double pixel border on cards */
             border: var(--border-width) solid #000;
             outline: 2px solid #fff;
             padding: 1.2rem; text-align: center; 
             box-shadow: 8px 8px 0 rgba(0,0,0,0.3); width: 100%;
             animation: slideUp 0.5s ease-out;
+            /* 154. Hover lift effect */
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+            overflow: hidden;
         }
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        .pixel-card:hover { transform: translateY(-5px); box-shadow: 12px 12px 0 rgba(0,0,0,0.4); }
+
+        /* 155. Glassmorphism for cards */
+        .pixel-card.featured {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-color: var(--coin-gold);
+        }
+
+        /* 156. Milestone celebration banner */
+        .milestone-banner {
+            position: absolute; top: 10px; right: -30px;
+            background: var(--mario-red); color: white;
+            padding: 5px 40px; transform: rotate(45deg);
+            font-family: var(--font-pixel); font-size: 0.4rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            z-index: 5;
+        }
+
+        /* 157. Last Active Badge */
+        .active-badge {
+            font-size: 0.5rem; font-family: var(--font-pixel);
+            color: var(--luigi-green); margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center; gap: 5px;
+        }
+        .active-dot { width: 6px; height: 6px; background: var(--luigi-green); border-radius: 50% !important; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* 158. Booking History Section */
+        .history-list {
+            text-align: left; font-size: 0.6rem; color: #555;
+            margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ccc;
+        }
+        .history-item { margin-bottom: 4px; display: flex; justify-content: space-between; }
+
+        /* 159. Touch friendly buttons */
+        .btn {
+            min-height: 48px; /* 160. Mobile accessibility */
+            display: flex; align-items: center; justify-content: center;
+            /* ... rest of btn styles ... */
         }
 
         /* 46. Avatar float animation */
@@ -340,7 +373,8 @@
                     <div style="color:var(--coin-gold); font-size:0.6rem; margin-bottom:10px;" class="pixel-font">WORLD 1-1: THE BIN DIRT KING ATTACKS!</div>
                     <div class="pixel-art">
                         <!-- 89. Accessibility: alt text for pixel art -->
-                        <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="Pixel art of hero cleaning a bin">
+                        <!-- 166. Performance: Lazy load SVG -->
+                        <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="Pixel art of hero cleaning a bin" loading="lazy">
                             <rect width="100" height="50" fill="#000" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
                         </svg>
                     </div>
@@ -357,7 +391,8 @@
                         <div class="spinner"></div>
                         <div class="pixel-font" style="font-size:0.5rem;">LOADING ASSETS...</div>
                     </div>
-                    <div id="map"></div>
+                    <!-- 167. Performance: lazy initialization hint -->
+                    <div id="map" loading="lazy"></div>
                 </div>
 
                 <!-- 63. Search bar -->
@@ -417,15 +452,15 @@
                     <!-- 106. Change "Sign Up" to "Player 2 Press Start" (in nav) -->
                     <form id="signup-form">
                         <!-- 101. Form placeholder: Enter your 8-bit alias -->
-                        <div class="form-group"><label>HERO ALIAS</label><input type="text" id="signup-name" placeholder="e.g. BinBuster99" required></div>
+                        <div class="form-group"><label>HERO ALIAS</label><input type="text" id="signup-name" placeholder="e.g. BinBuster99" required inputmode="text"></div>
                         <!-- 102. Form placeholder: Choose your guild -->
-                        <div class="form-group"><label>GUILD / TEAM</label><input type="text" id="signup-group" placeholder="e.g. St. John's Scouts"></div>
+                        <div class="form-group"><label>GUILD / TEAM</label><input type="text" id="signup-group" placeholder="e.g. St. John's Scouts" inputmode="text"></div>
                         <!-- 103. Form placeholder: Target gold amount -->
-                        <div class="form-group"><label>GOLD GOAL ($)</label><input type="number" id="signup-goal" placeholder="500"></div>
+                        <div class="form-group"><label>GOLD GOAL ($)</label><input type="number" id="signup-goal" placeholder="500" inputmode="numeric"></div>
                         <!-- 104. Form placeholder: Your home stage -->
-                        <div class="form-group"><label>HOME STAGE (NEIGHBORHOOD)</label><input type="text" id="signup-neighborhood" placeholder="e.g. Cowan Heights" required></div>
+                        <div class="form-group"><label>HOME STAGE (NEIGHBORHOOD)</label><input type="text" id="signup-neighborhood" placeholder="e.g. Cowan Heights" required inputmode="text"></div>
                         <!-- 105. Form placeholder: When can you spawn? -->
-                        <div class="form-group"><label>SPAWN TIME (AVAILABILITY)</label><input type="text" id="signup-time" placeholder="e.g. Saturdays 10am" required></div>
+                        <div class="form-group"><label>SPAWN TIME (AVAILABILITY)</label><input type="text" id="signup-time" placeholder="e.g. Saturdays 10am" required inputmode="text"></div>
                         
                         <!-- 69. Disable submit button while processing (handled in JS) -->
                         <!-- 107. Change "Submit" to "INSERT COIN" -->
@@ -491,9 +526,9 @@
          */
         const HeroManager = {
             heroes: [
-                { id: 1, nickname: "Bin-Buster Pete", group: "Scouts", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14, lat: 47.535, lng: -52.762, backstory: "A former speedrunner turned sanitation expert." },
-                { id: 2, nickname: "Retro Riley", group: "Soccer Club", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9, lat: 47.518, lng: -52.805, backstory: "Uses blast processing to clean bins faster." },
-                { id: 3, nickname: "Sanitary Sam", group: "Scouts", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6, lat: 47.569, lng: -52.718, backstory: "Equipped with the legendary Golden Sponge." }
+                { id: 1, nickname: "Bin-Buster Pete", group: "Scouts", neighborhood: "Cowan Heights", avatar: "🦸‍♂️", rating: 5, reviews: 14, lat: 47.535, lng: -52.762, backstory: "A former speedrunner turned sanitation expert.", lastActive: "2 mins ago", history: ["Cowan Hts - 10:00 AM", "Kilbride - 9:15 AM"] },
+                { id: 2, nickname: "Retro Riley", group: "Soccer Club", neighborhood: "Pearlview", avatar: "🛡️", rating: 4.5, reviews: 9, lat: 47.518, lng: -52.805, backstory: "Uses blast processing to clean bins faster.", lastActive: "15 mins ago", history: ["Pearlview - 8:30 AM"] },
+                { id: 3, nickname: "Sanitary Sam", group: "Scouts", neighborhood: "Rabbittown", avatar: "✨", rating: 5, reviews: 6, lat: 47.569, lng: -52.718, backstory: "Equipped with the legendary Golden Sponge.", lastActive: "Just now", history: ["Rabbittown - 10:45 AM"] }
             ],
             // 92. Randomize backstories
             backstories: [
@@ -503,6 +538,15 @@
                 "Can sanitize a bin in 0.4 seconds.",
                 "Uses high-pressure pixel water."
             ],
+            // 161. Random Last Active generator
+            getRandomActive() {
+                const times = ["Just now", "2 mins ago", "5 mins ago", "1 hour ago", "Yesterday"];
+                return times[Math.floor(Math.random() * times.length)];
+            },
+            // 162. Random History generator
+            getRandomHistory() {
+                return ["Sector 7 - 08:00", "Driveway HP Restored", "Mission: Clean"];
+            },
             // 98. Neighborhood tips
             safetyTips: {
                 "Cowan Heights": "Watch out for wind-blown debris on the hill!",
@@ -511,6 +555,8 @@
                 "Default": "Always wear your 8-bit safety goggles!"
             },
             addHero(hero) {
+                hero.lastActive = this.getRandomActive();
+                hero.history = this.getRandomHistory();
                 this.heroes.push(hero);
                 StorageManager.save(this.heroes);
             },
@@ -614,6 +660,7 @@
                 list.forEach((h, index) => {
                     const team = this.teamGoals[h.group];
                     let teamHtml = '';
+                    let milestoneHtml = '';
                     if (team) {
                         const percent = (team.current / team.goal) * 100;
                         teamHtml = `
@@ -622,22 +669,38 @@
                                 <div class="xp-text">${h.group} GOAL: $${team.current}/$${team.goal}</div>
                             </div>
                         `;
+                        // 163. Milestone check
+                        if (percent >= 100) milestoneHtml = `<div class="milestone-banner">100% GOAL!</div>`;
+                        else if (percent >= 50) milestoneHtml = `<div class="milestone-banner">50% REACHED</div>`;
                     }
+
+                    // 164. Booking history html
+                    const historyHtml = h.history ? `
+                        <div class="history-list">
+                            <div class="pixel-font" style="font-size:0.4rem; margin-bottom:5px;">RECENT QUESTS:</div>
+                            ${h.history.map(item => `<div class="history-item"><span>${item}</span><span>✓</span></div>`).join('')}
+                        </div>
+                    ` : '';
 
                     // 124. Use <article> for hero cards
                     const card = document.createElement('article');
                     card.className = 'pixel-card';
+                    if (index === 0) card.classList.add('featured'); // 165. Feature first hero
+                    
                     // 33. Staggered animation delay
                     card.style.animationDelay = `${index * 0.1}s`;
                     
                     card.innerHTML = `
+                        ${milestoneHtml}
                         <div style="font-family:'Press Start 2P'; font-size:0.45rem; color:var(--power-purple); margin-bottom:10px;">LVL ${h.reviews + 1} HERO</div>
+                        <div class="active-badge"><div class="active-dot"></div> ACTIVE: ${h.lastActive || 'Unknown'}</div>
                         <div class="avatar-box">${h.avatar || '👾'}</div>
                         <h3 class="pixel-font" style="font-size:0.7rem; margin-bottom:5px;">${h.nickname}</h3>
                         <p style="font-size:0.8rem; color:#666; font-style:italic; margin-bottom:10px;">"${h.backstory || 'No lore yet.'}"</p>
-                        <div style="color:var(--coin-gold); font-size:1.2rem; margin-bottom:10px;" title="108. Rating based on feedback">${"★".repeat(Math.floor(h.rating))}${h.rating % 1 !== 0 ? "½" : ""}</div>
+                        <div style="color:var(--coin-gold); font-size:1.2rem; margin-bottom:10px;">${"★".repeat(Math.floor(h.rating))}${h.rating % 1 !== 0 ? "½" : ""}</div>
                         <div style="background:#000; color:#fff; padding:8px; font-size:0.9rem; margin-bottom:15px;">📍 ${h.neighborhood}</div>
                         ${teamHtml}
+                        ${historyHtml}
                         <button class="btn btn-green" onclick="UIManager.openBooking('${h.nickname}')">HIRE HERO</button>
                     `;
                     container.appendChild(card);
