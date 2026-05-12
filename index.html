@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Bin Heroes | Official Community Board</title>
+    <title>Pixel Bin Heroes | True Global World</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -39,10 +39,10 @@
 
         nav { background: var(--mario-red); padding: 1rem; border-bottom: 8px solid #000; z-index: 100; position: sticky; top: 0; }
         .logo-text { font-size: 0.8rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 10px; cursor: pointer; }
-        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+        .nav-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
         .btn {
-            display: block; width: 100%; padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.4rem;
+            display: block; width: 100%; padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.5rem;
             border: 4px solid #000; background: var(--coin-gold); color: #000;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.5); text-decoration: none; text-align: center;
         }
@@ -71,10 +71,6 @@
         .xp-fill { background: var(--luigi-green); height: 100%; width: 0%; transition: width 1s; }
         .xp-text { position: absolute; width: 100%; top: 4px; left: 0; font-size: 0.45rem; font-family: 'Press Start 2P'; z-index: 2; }
 
-        .community-board { background: var(--power-purple); border: 6px solid #000; padding: 1.5rem; margin-top: 2rem; color: white; }
-        .feedback-post { background: rgba(0,0,0,0.3); border: 2px dashed #fff; padding: 1rem; margin-bottom: 1rem; font-size: 1.1rem; }
-
-        .auth-container { background: #fff; border: 6px solid #000; padding: 1.5rem; color: #000; }
         .form-group { margin-bottom: 1rem; text-align: left; }
         .form-group label { display: block; font-size: 0.55rem; font-family: 'Press Start 2P'; margin-bottom: 8px; }
         input { width: 100%; padding: 10px; border: 4px solid #000; font-family: 'VT323'; font-size: 1.4rem; }
@@ -87,26 +83,30 @@
         }
         .modal-overlay.active { display: flex; }
         .modal-box { background: white; border: 8px solid var(--mario-red); padding: 1.5rem; width: 100%; color: #000; }
+        
+        .loading-bar { 
+            position: fixed; top: 0; left: 0; height: 4px; background: var(--coin-gold); 
+            width: 0%; z-index: 1001; transition: width 0.3s;
+        }
     </style>
 </head>
 <body>
+    <div id="loader" class="loading-bar"></div>
 
     <div class="app-shell">
         <nav>
             <div class="logo-text pixel-font" onclick="switchView('home')">PIXEL BIN HEROES</div>
             <div class="nav-buttons">
                 <button class="btn" onclick="switchView('home')">WORLD MAP</button>
-                <button class="btn" onclick="switchView('register')" style="background:var(--luigi-green); color:white;">JOIN NOW</button>
-                <button class="btn" onclick="switchView('feedback')" style="background:var(--power-purple); color:white;">REVIEW</button>
+                <button class="btn btn-green" onclick="switchView('register')">JOIN NOW</button>
             </div>
         </nav>
 
         <main>
             <section id="home-view" class="view active">
                 <header class="hero-banner">
-                    <h1>DEFEAT BIN DIRT!</h1>
+                    <h1>GLOBAL HERO BOARD</h1>
                     <div class="pixel-art">
-                        <!-- High-Res 1000px Hero -->
                         <svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
                             <rect x="300" y="200" width="400" height="600" fill="#E52521" stroke="#000" stroke-width="20" />
                             <rect x="350" y="100" width="300" height="200" fill="#444" stroke="#000" stroke-width="20" />
@@ -119,38 +119,22 @@
                 <div id="map"></div>
                 <h2 class="pixel-font" style="font-size: 0.7rem; text-align: center; margin-bottom: 1.5rem; color: white;">LOCAL HEROES</h2>
                 <div id="profiles-container" class="card-grid"></div>
-                <div class="community-board">
-                    <h2 class="pixel-font" style="font-size: 0.7rem; margin-bottom: 1rem; text-align: center;">COMMUNITY FEEDBACK</h2>
-                    <div id="feedback-list"></div>
-                </div>
             </section>
 
             <section id="register-view" class="view">
                 <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">JOIN THE SQUAD</h2>
-                <div class="auth-container">
+                <div class="auth-container" style="background:#fff; padding:1.5rem; border:6px solid #000;">
                     <form id="signup-form">
                         <div class="form-group"><label>HERO ALIAS</label><input type="text" id="reg-name" required></div>
                         <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="reg-neighborhood" required></div>
                         <div class="form-group"><label>CONTACT (SECRET)</label><input type="text" id="reg-contact" required placeholder="Email/Phone (Hidden)"></div>
-                        <button type="submit" class="btn btn-green" style="width:100%; padding:15px; font-size:0.8rem;">PUBLISH PROFILE</button>
-                    </form>
-                </div>
-            </section>
-
-            <section id="feedback-view" class="view">
-                <h2 class="pixel-font" style="color:white; text-align:center; margin-bottom:1rem;">LEAVE FEEDBACK</h2>
-                <div class="auth-container">
-                    <form id="feedback-form">
-                        <div class="form-group"><label>YOUR NAME</label><input type="text" id="feed-user" required></div>
-                        <div class="form-group"><label>HERO NAME</label><input type="text" id="feed-hero" required></div>
-                        <div class="form-group"><label>MESSAGE</label><input type="text" id="feed-msg" required></div>
-                        <button type="submit" class="btn btn-green" style="width:100%; padding:15px; font-size:0.8rem;">POST REVIEW</button>
+                        <button type="submit" class="btn btn-green" id="reg-btn" style="width:100%; padding:15px; font-size:0.8rem;">PUBLISH PROFILE</button>
                     </form>
                 </div>
             </section>
         </main>
 
-        <footer><p>2026 PIXEL BIN HEROES | GITHUB-POWERED WORLD</p></footer>
+        <footer><p>2026 PIXEL BIN HEROES | GLOBAL SYNC ACTIVE</p></footer>
 
         <div id="booking-modal" class="modal-overlay">
             <div class="modal-box">
@@ -166,39 +150,40 @@
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const API_URL = '/api/sync';
-        let map, worldData = { heroes: [], reviews: [] }, currentHeroId = null;
+        // --- DIRECT CLOUD STORAGE (No Backend Needed) ---
+        const DB_URL = 'https://api.npoint.io/b33a59379669527ec3d9'; // Persistent high-capacity bin
+        let map, heroes = [], currentHero = null;
 
         async function initApp() {
             initMap();
-            // Load Local first for instant visibility
-            const cached = localStorage.getItem('pb_world_cache');
-            if(cached) { worldData = JSON.parse(cached); renderWorld(); }
             await fetchWorld();
         }
 
         async function fetchWorld() {
+            setLoading(30);
             try {
-                const response = await fetch(API_URL);
-                if(response.ok) {
-                    worldData = await response.json();
-                    localStorage.setItem('pb_world_cache', JSON.stringify(worldData));
-                    renderWorld();
-                }
-            } catch (e) { console.log("Dev Mode: API not live yet."); }
+                const response = await fetch(DB_URL);
+                const data = await response.json();
+                heroes = data.heroes || [];
+                renderWorld();
+                setLoading(100);
+            } catch (e) { console.error("Sync Error", e); setLoading(0); }
         }
 
         async function syncWorld() {
-            localStorage.setItem('pb_world_cache', JSON.stringify(worldData));
-            renderWorld();
+            setLoading(50);
             try {
-                await fetch(API_URL, {
+                await fetch(DB_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(worldData)
+                    body: JSON.stringify({ heroes })
                 });
-            } catch (e) { console.log("Dev Mode: Saved locally."); }
+                renderWorld();
+                setLoading(100);
+            } catch (e) { alert("Cloud connection failed!"); setLoading(0); }
         }
+
+        function setLoading(p) { document.getElementById('loader').style.width = p + '%'; if(p===100) setTimeout(()=>document.getElementById('loader').style.width='0%', 500); }
 
         function initMap() {
             map = L.map('map', { scrollWheelZoom: false }).setView([47.54, -52.75], 11);
@@ -207,11 +192,10 @@
 
         function renderWorld() {
             const container = document.getElementById('profiles-container');
-            const feedContainer = document.getElementById('feedback-list');
-            container.innerHTML = ''; feedContainer.innerHTML = '';
+            container.innerHTML = '';
             map.eachLayer(l => { if(l instanceof L.Marker) map.removeLayer(l); });
 
-            worldData.heroes.sort((a,b) => b.xp - a.xp).forEach(h => {
+            heroes.sort((a,b) => b.xp - a.xp).forEach(h => {
                 L.marker([h.lat, h.lng]).addTo(map).bindPopup(`<b>${h.name}</b><br>${h.neighborhood}`);
                 const card = document.createElement('div'); card.className = 'pixel-card';
                 const progress = (h.xp % 1000) / 10;
@@ -225,12 +209,6 @@
                 `;
                 container.appendChild(card);
             });
-
-            worldData.reviews.forEach(r => {
-                const post = document.createElement('div'); post.className = 'feedback-post';
-                post.innerHTML = `<p>"${r.msg}"</p><p style="color:var(--coin-gold); font-size:0.6rem; margin-top:5px;">-- ${r.user} @ ${r.hero}</p>`;
-                feedContainer.appendChild(post);
-            });
         }
 
         function switchView(id) {
@@ -241,33 +219,31 @@
         }
 
         function openBooking(id) {
-            currentHeroId = id; const hero = worldData.heroes.find(h => h.id == id);
-            document.getElementById('booking-info').innerText = `SEND MISSION TO ${hero.name.toUpperCase()}?`;
+            currentHero = heroes.find(h => h.id == id);
+            document.getElementById('booking-info').innerText = `SEND MISSION TO ${currentHero.name.toUpperCase()}?`;
             document.getElementById('booking-modal').classList.add('active');
         }
         function closeModal() { document.getElementById('booking-modal').classList.remove('active'); }
 
         async function confirmMission() {
-            const hero = worldData.heroes.find(h => h.id == currentHeroId);
-            if(hero) {
-                hero.xp += 150; await syncWorld();
-                window.location.href = `mailto:${hero.contact}?subject=MISSION REQUEST&body=Bin Sanitization request from ${document.getElementById('cust-name').value} at ${document.getElementById('cust-addr').value}`;
+            if(currentHero) {
+                currentHero.xp += 150; 
+                await syncWorld();
+                window.location.href = `mailto:${currentHero.contact}?subject=MISSION REQUEST&body=New bin mission from ${document.getElementById('cust-name').value} at ${document.getElementById('cust-addr').value}`;
                 closeModal();
             }
         }
 
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const btn = document.getElementById('reg-btn');
+            btn.innerText = "SYNCING..."; btn.disabled = true;
             const newHero = { id: Date.now(), name: document.getElementById('reg-name').value, neighborhood: document.getElementById('reg-neighborhood').value, contact: document.getElementById('reg-contact').value, xp: 0, lat: 47.54 + (Math.random()*0.06-0.03), lng: -52.75 + (Math.random()*0.06-0.03) };
-            worldData.heroes.push(newHero); await syncWorld();
-            alert("HERO CREATED!"); switchView('home');
-        });
-
-        document.getElementById('feedback-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            worldData.reviews.push({ user: document.getElementById('feed-user').value, hero: document.getElementById('feed-hero').value, msg: document.getElementById('feed-msg').value });
+            heroes.push(newHero); 
             await syncWorld();
-            alert("REVIEW POSTED!"); switchView('home');
+            alert("SUCCESS! YOU ARE NOW GLOBAL.");
+            btn.innerText = "PUBLISH PROFILE"; btn.disabled = false;
+            switchView('home');
         });
 
         window.onload = initApp;
