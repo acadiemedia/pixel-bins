@@ -1,1 +1,1 @@
-{"heroes": []}
+{"heroes": [{"id": 1, "name": "Bin-Buster Pete", "neighborhood": "Cowan Heights", "contact": "709-000-0000", "xp": 1250, "lat": 47.535, "lng": -52.762}, {"id": 2, "name": "Retro Riley", "neighborhood": "Pearlview", "contact": "709-111-1111", "xp": 840, "lat": 47.518, "lng": -52.805}], "reviews": [{"user": "Mrs. Walsh", "hero": "Bin-Buster Pete", "msg": "Bins are glowing! 10/10."}]}
