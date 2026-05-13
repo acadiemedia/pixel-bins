@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pixel Bin Heroes | Ultra Resilience V3</title>
+    <title>Pixel Bin Heroes | Global World V4</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -38,8 +38,8 @@
         h1, h2, h3, .pixel-font { font-family: 'Press Start 2P', cursive; text-transform: uppercase; }
 
         nav { background: var(--mario-red); padding: 1rem; border-bottom: 8px solid #000; z-index: 100; position: sticky; top: 0; }
-        .logo-text { font-size: 0.8rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 15px; }
-        .nav-buttons { display: flex; justify-content: center; gap: 5px; }
+        .logo-text { font-size: 0.8rem; color: white; text-shadow: 4px 4px 0 #000; text-align: center; margin-bottom: 15px; cursor: pointer; }
+        .nav-buttons { display: flex; justify-content: center; gap: 10px; }
 
         .btn {
             display: block; width: 100%; padding: 10px; font-family: 'Press Start 2P', cursive; font-size: 0.4rem;
@@ -51,10 +51,9 @@
 
         .view { display: none; width: 100%; padding: 1rem; flex-grow: 1; animation: fadeIn 0.4s ease-out; }
         .view.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .hero-banner { text-align: center; padding: 1rem 0; }
         .pixel-art { width: 100%; background: #000; border: 4px solid white; padding: 5px; margin-bottom: 1rem; }
-
         #map { height: 250px; border: 6px solid #000; margin-bottom: 1.5rem; width: 100%; z-index: 10; }
 
         .card-grid { display: flex; flex-direction: column; gap: 1.5rem; width: 100%; padding-bottom: 2rem;}
@@ -69,19 +68,13 @@
         .form-group label { display: block; font-size: 0.55rem; font-family: 'Press Start 2P'; margin-bottom: 8px; }
         input { width: 100%; padding: 10px; border: 4px solid #000; font-family: 'VT323'; font-size: 1.4rem; }
 
-        footer { text-align: center; padding: 1.5rem; background: #000; color: #888; font-size: 0.6rem; }
+        footer { text-align: center; padding: 1rem; background: #000; color: #888; font-size: 0.6rem; }
 
         #debug-console { 
             background: #000; color: #39ff14; font-family: monospace; 
-            font-size: 10px; padding: 10px; height: 100px; overflow-y: scroll;
+            font-size: 10px; padding: 10px; height: 80px; overflow-y: scroll;
             border-top: 4px solid #333;
         }
-
-        .modal-overlay {
-            display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
     </style>
 </head>
 <body>
@@ -97,13 +90,11 @@
 
         <main>
             <section id="home-view" class="view active">
-                <header class="hero-banner">
-                    <div class="pixel-art">
-                        <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
-                            <rect width="100" height="50" fill="#5C94FC" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
-                        </svg>
-                    </div>
-                </header>
+                <div class="pixel-art">
+                    <svg viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+                        <rect width="100" height="50" fill="#5C94FC" /><rect x="70" y="20" width="15" height="25" fill="#43B047" /><rect x="25" y="20" width="12" height="25" fill="#E52521" /><rect x="47" y="22" width="6" height="6" fill="#FFD700" />
+                    </svg>
+                </div>
                 <div id="map"></div>
                 <div id="profiles-container" class="card-grid"></div>
             </section>
@@ -114,24 +105,25 @@
                     <form id="signup-form">
                         <div class="form-group"><label>HERO ALIAS</label><input type="text" id="reg-name" required></div>
                         <div class="form-group"><label>NEIGHBORHOOD</label><input type="text" id="reg-neighborhood" required></div>
-                        <div class="form-group"><label>CONTACT</label><input type="text" id="reg-contact" required></div>
+                        <div class="form-group"><label>CONTACT (HIDDEN)</label><input type="text" id="reg-contact" required></div>
                         <button type="submit" class="btn btn-green" id="reg-btn" style="width:100%; padding:15px; font-size:0.65rem;">PUBLISH PROFILE</button>
                     </form>
                 </div>
             </section>
         </main>
 
-        <div id="debug-console">READY...</div>
+        <div id="debug-console">BOOTING SYSTEM...</div>
 
         <footer>
-            <p>2026 PIXEL BIN HEROES | ST. JOHN'S, NL</p>
+            <p>2026 PIXEL BIN HEROES | KVDB ACTIVE</p>
         </footer>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        const DB_URL = 'https://api.npoint.io/468874138e64e5288283';
-        const LOCAL_KEY = 'pixel_bins_final_v3';
+        // --- INDUSTRIAL KVDB STORAGE ---
+        const DB_URL = 'https://kvdb.io/D7Lqf8X4G9zL2m5v6N1p9R/heroes_v4'; 
+        const LOCAL_KEY = 'pixel_bins_resilience_v4';
         let heroes = [];
 
         function log(msg) {
@@ -141,33 +133,33 @@
         }
 
         async function initApp() {
-            log("Initializing App...");
+            log("System Initializing...");
             initMap();
             
             // 1. Load Local Gold
             const cached = localStorage.getItem(LOCAL_KEY);
             if(cached) {
-                log("Loading Local Gold storage...");
+                log("Local Cache Loaded.");
                 heroes = JSON.parse(cached);
                 render();
             }
 
             // 2. Fetch Global
-            log("Syncing with Global Cloud...");
+            log("Connecting to Global World...");
             try {
                 const res = await fetch(DB_URL);
-                const data = await res.json();
-                if(data && data.heroes) {
-                    log(`Cloud found: ${data.heroes.length} heroes.`);
-                    // Merge: Only add new IDs
-                    data.heroes.forEach(gh => {
+                const cloudData = await res.json();
+                if(Array.isArray(cloudData)) {
+                    log(`Syncing ${cloudData.length} heroes...`);
+                    // Merge
+                    cloudData.forEach(gh => {
                         if(!heroes.find(lh => lh.id === gh.id)) heroes.push(gh);
                     });
                     saveLocal();
                     render();
-                    log("Sync Complete.");
+                    log("World Synced.");
                 }
-            } catch (e) { log("Cloud Offline. Running in Local-Only."); }
+            } catch (e) { log("Running in Local Mode."); }
         }
 
         function saveLocal() { localStorage.setItem(LOCAL_KEY, JSON.stringify(heroes)); }
@@ -175,13 +167,13 @@
         async function pushGlobal() {
             log("Pushing to Global World...");
             try {
-                await fetch(DB_URL, {
+                const res = await fetch(DB_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ heroes })
+                    body: JSON.stringify(heroes)
                 });
-                log("Global Push SUCCESS.");
-            } catch (e) { log("Global Push FAILED."); }
+                if(res.ok) log("Global Push OK.");
+                else log("Global Push FAILED.");
+            } catch (e) { log("Network Error."); }
         }
 
         function initMap() {
@@ -190,13 +182,15 @@
         }
 
         function render() {
-            log(`Rendering ${heroes.length} Heroes...`);
             const container = document.getElementById('profiles-container');
             container.innerHTML = '';
+            map.eachLayer(l => { if(l instanceof L.Marker) map.removeLayer(l); });
+            
             heroes.forEach(h => {
+                L.marker([h.lat, h.lng]).addTo(map).bindPopup(`<b>${h.name}</b><br>${h.neighborhood}`);
                 const card = document.createElement('div');
                 card.className = 'pixel-card';
-                card.innerHTML = `<div class="avatar-box">🦸‍♂️</div><div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.name}</div><div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${h.neighborhood}</div><button class="btn btn-green">DISPATCH</button>`;
+                card.innerHTML = `<div class="avatar-box">🦸‍♂️</div><div class="pixel-font" style="font-size:0.7rem; margin-bottom:10px;">${h.name}</div><div style="background:#000; color:#fff; padding:5px; font-size:0.8rem; margin:10px 0;">📍 ${h.neighborhood}</div><button class="btn btn-green" onclick="alert('Sending mission to secret contact...')">DISPATCH</button>`;
                 container.appendChild(card);
             });
         }
@@ -209,7 +203,6 @@
 
         document.getElementById('signup-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            log("Starting signup...");
             const newHero = {
                 id: Date.now().toString(),
                 name: document.getElementById('reg-name').value,
@@ -225,7 +218,7 @@
             log("Local Save OK.");
             
             await pushGlobal();
-            alert("HERO PUBLISHED!");
+            alert("SUCCESS! YOU ARE GLOBAL.");
             switchView('home');
         });
 
